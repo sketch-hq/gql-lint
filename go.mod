@@ -1,4 +1,4 @@
-module example.com/gqltest
+module github.com/sketch-hq/gql-lint
 
 go 1.19
 
