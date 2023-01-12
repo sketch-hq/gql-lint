@@ -17,23 +17,34 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	flag.StringVar(&schemaFile, "schema", "", "server's schema file")
-	flag.Parse()
-	queriesDir = flag.Arg(0)
-	if queriesDir == "" {
-		fmt.Fprint(os.Stderr, "You must specify a directory for queries and mutations\n")
+	depFlags := flag.NewFlagSet("deprecation", flag.ExitOnError)
+	depFlags.StringVar(&schemaFile, "schema", "", "server's schema file")
+
+	if len(os.Args) < 2 {
+		fmt.Println("expected 'deprecation' subcommand")
 		os.Exit(1)
 	}
 
-	if schemaFile == "" {
-		fmt.Fprint(os.Stderr, "You must specify a schema file\n")
+	switch os.Args[1] {
+	case "deprecation":
+		depFlags.Parse(os.Args[2:])
+		queriesDir = depFlags.Arg(0)
+		if queriesDir == "" {
+			fmt.Fprint(os.Stderr, "You must specify a directory for queries and mutations\n")
+			os.Exit(1)
+		}
+		if schemaFile == "" {
+			fmt.Fprint(os.Stderr, "You must specify a schema file\n")
+			os.Exit(1)
+		}
+		runDeprecation()
+	default:
+		fmt.Println("expected 'deprecation' subcommand")
 		os.Exit(1)
 	}
-
-	run()
 }
 
-func run() {
+func runDeprecation() {
 	schema, err := parser.ParseSchemaFile(schemaFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to parse schema file %s: %s", schemaFile, err)
