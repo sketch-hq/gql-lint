@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -26,7 +27,7 @@ func main() {
 			depFlags.PrintDefaults()
 		}
 		depFlags.StringVar(&schemaFile, "schema", "", "Server's schema file")
-		depFlags.StringVar(&outputFormat, "output", "", "Output format. Choose between json and stdout. Defaults is stdout.")
+		depFlags.StringVar(&outputFormat, "output", "stdout", "Output format. Choose between json and stdout. Defaults is stdout.")
 		depFlags.Parse(os.Args[2:])
 		queriesDir = depFlags.Arg(0)
 		if queriesDir == "" {
@@ -57,10 +58,51 @@ func runDeprecation() {
 		os.Exit(1)
 	}
 
+	switch outputFormat {
+	case "stdout":
+		deprecationStdOut(queryFields)
+
+	case "json":
+		deprecationJsonOut(queryFields)
+
+	default:
+		fmt.Fprintf(os.Stderr, "%s is not a valid output format. Choose between json and stdout", outputFormat)
+		os.Exit(1)
+	}
+}
+
+func deprecationStdOut(queryFields parser.QueryFieldList) {
 	for _, q := range queryFields {
 		fmt.Printf("%s is deprecated\n", q.Path)
 		fmt.Printf("  File:   %s:%d\n", q.File, q.Line)
 		fmt.Printf("  Reason: %s\n", q.DeprecationReason)
 		fmt.Println()
 	}
+}
+
+func deprecationJsonOut(queryFields parser.QueryFieldList) {
+	type outField struct {
+		Field             string `json:"field"`
+		File              string `json:"file"`
+		Line              int    `json:"line"`
+		DeprecationReason string `json:"reason"`
+	}
+	output := []outField{}
+
+	for _, q := range queryFields {
+		f := outField{
+			Field:             q.Path,
+			File:              q.File,
+			Line:              q.Line,
+			DeprecationReason: q.DeprecationReason,
+		}
+		output = append(output, f)
+	}
+	bytes, err := json.Marshal(output)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to encode json: %s\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Print(string(bytes))
 }
