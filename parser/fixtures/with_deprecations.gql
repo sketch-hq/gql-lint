@@ -1,0 +1,9 @@
+type Book {
+  title: String @deprecated(reason: "untitled books are better")
+  author: Author
+}
+
+type Author {
+  name: String
+  books: [Book]
+}
