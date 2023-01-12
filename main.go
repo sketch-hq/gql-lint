@@ -10,16 +10,9 @@ import (
 
 var queriesDir string
 var schemaFile string
+var outputFormat string
 
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s <query/mutation directory>\n", os.Args[0])
-		flag.PrintDefaults()
-	}
-
-	depFlags := flag.NewFlagSet("deprecation", flag.ExitOnError)
-	depFlags.StringVar(&schemaFile, "schema", "", "server's schema file")
-
 	if len(os.Args) < 2 {
 		fmt.Println("expected 'deprecation' subcommand")
 		os.Exit(1)
@@ -27,6 +20,13 @@ func main() {
 
 	switch os.Args[1] {
 	case "deprecation":
+		depFlags := flag.NewFlagSet("deprecation", flag.ExitOnError)
+		depFlags.Usage = func() {
+			fmt.Fprintf(os.Stderr, "Usage: %s <query/mutation directory>\n", os.Args[0])
+			depFlags.PrintDefaults()
+		}
+		depFlags.StringVar(&schemaFile, "schema", "", "Server's schema file")
+		depFlags.StringVar(&outputFormat, "output", "", "Output format. Choose between json and stdout. Defaults is stdout.")
 		depFlags.Parse(os.Args[2:])
 		queriesDir = depFlags.Arg(0)
 		if queriesDir == "" {
