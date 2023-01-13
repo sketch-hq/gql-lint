@@ -10,7 +10,7 @@ import (
 func TestParseSchemaFile(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := ParseSchemaFile("./fixtures/with_deprecations.gql")
+	schema, err := ParseSchemaFile("testdata/with_deprecations.gql")
 
 	is.NoErr(err)
 
@@ -45,7 +45,7 @@ func TestParseSchemaFile(t *testing.T) {
 func TestParseSchemaFile_NotFound(t *testing.T) {
 	is := is.New(t)
 
-	_, err := ParseSchemaFile("./fixtures/not_found.gql")
+	_, err := ParseSchemaFile("testdata/not_found.gql")
 
 	is.True(strings.Contains(err.Error(), "open ./fixtures/not_found.gql: no such file or directory"))
 }
@@ -53,10 +53,10 @@ func TestParseSchemaFile_NotFound(t *testing.T) {
 func TestParseQueryDir(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := ParseSchemaFile("./fixtures/with_deprecations.gql")
+	schema, err := ParseSchemaFile("testdata/with_deprecations.gql")
 	is.NoErr(err)
 
-	fields, err := ParseQueryDir("./fixtures/queries", schema)
+	fields, err := ParseQueryDir("testdata/queries", schema)
 	is.NoErr(err)
 
 	is.Equal(len(fields), 1)
@@ -64,6 +64,6 @@ func TestParseQueryDir(t *testing.T) {
 	field := fields[0]
 	is.Equal(field.Path, "author.books.title")
 	is.True(field.IsDeprecated)
-	is.Equal(field.File, "fixtures/queries/deprecation.gql")
+	is.Equal(field.File, "testdata/queries/deprecation.gql")
 	is.Equal(field.Line, 7)
 }
