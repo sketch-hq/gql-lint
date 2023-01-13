@@ -21,13 +21,13 @@ darwin-amd: $(DARWIN_AMD) ## Build for Darwin AMD (intel macOS)
 darwin-arm: $(DARWIN_ARM) ## Build for Darwin ARM (m1 macOS)
 
 $(LINUX):
-	env GOOS=linux GOARCH=amd64 go build -v -o dist/$(LINUX) -ldflags="-s -w -X main.version=$(VERSION)"  ./main.go
+	env GOOS=linux GOARCH=amd64 go build -v -o dist/$(LINUX) -ldflags="-s -w -X main.version=$(VERSION)"  ./cmd/gql-lint.go
 
 $(DARWIN_AMD):
-	env GOOS=darwin GOARCH=amd64 go build -v -o dist/$(DARWIN_AMD) -ldflags="-s -w -X main.version=$(VERSION)"  ./main.go
+	env GOOS=darwin GOARCH=amd64 go build -v -o dist/$(DARWIN_AMD) -ldflags="-s -w -X main.version=$(VERSION)"  ./cmd/gql-lint.go
 
 $(DARWIN_ARM):
-	env GOOS=darwin GOARCH=arm64 go build -v -o dist/$(DARWIN_ARM) -ldflags="-s -w -X main.version=$(VERSION)"  ./main.go
+	env GOOS=darwin GOARCH=arm64 go build -v -o dist/$(DARWIN_ARM) -ldflags="-s -w -X main.version=$(VERSION)"  ./cmd/gql-lint.go
 
 clean: ## Remove previous build
 	rm -rf dist
