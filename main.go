@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
 )
 
@@ -15,7 +16,7 @@ var outputFormat string
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("expected 'deprecation' subcommand")
+		fmt.Fprint(os.Stderr, "expected 'deprecation' subcommand")
 		os.Exit(1)
 	}
 
@@ -39,6 +40,20 @@ func main() {
 			os.Exit(1)
 		}
 		runDeprecation()
+
+	case "diff":
+		diffFlags := flag.NewFlagSet("diff", flag.ExitOnError)
+		diffFlags.StringVar(&outputFormat, "output", "stdout", "Output format. Choose between json and stdout. Defaults is stdout.")
+		diffFlags.Usage = func() {
+			fmt.Fprintf(os.Stderr, "Usage: %s <json file> <json file>\n", os.Args[0])
+			diffFlags.PrintDefaults()
+		}
+		diffFlags.Parse(os.Args[2:])
+		if len(diffFlags.Args()) < 2 {
+			fmt.Fprint(os.Stderr, "expected two json files to be given")
+		}
+		runDiff(diffFlags.Arg(0), diffFlags.Arg(1))
+
 	default:
 		fmt.Println("expected 'deprecation' subcommand")
 		os.Exit(1)
@@ -71,6 +86,26 @@ func runDeprecation() {
 	}
 }
 
+func runDiff(fileA string, fileB string) {
+	result, err := output.CompareFiles(fileA, fileB)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to diff: %s", err)
+		os.Exit(1)
+	}
+
+	switch outputFormat {
+	case "stdout":
+		diffStdOut(fileA, fileB, result)
+
+	case "json":
+		diffJsonOut(result)
+
+	default:
+		fmt.Fprintf(os.Stderr, "%s is not a valid output format. Choose between json and stdout\n", outputFormat)
+		os.Exit(1)
+	}
+}
+
 func deprecationStdOut(queryFields parser.QueryFieldList) {
 	for _, q := range queryFields {
 		fmt.Printf("%s is deprecated\n", q.Path)
@@ -81,24 +116,39 @@ func deprecationStdOut(queryFields parser.QueryFieldList) {
 }
 
 func deprecationJsonOut(queryFields parser.QueryFieldList) {
-	type outField struct {
-		Field             string `json:"field"`
-		File              string `json:"file"`
-		Line              int    `json:"line"`
-		DeprecationReason string `json:"reason"`
-	}
-	output := []outField{}
+	out := output.Data{}
 
 	for _, q := range queryFields {
-		f := outField{
+		f := output.Field{
 			Field:             q.Path,
 			File:              q.File,
 			Line:              q.Line,
 			DeprecationReason: q.DeprecationReason,
 		}
-		output = append(output, f)
+		out = append(out, f)
 	}
-	bytes, err := json.Marshal(output)
+	bytes, err := json.Marshal(out)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to encode json: %s\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Print(string(bytes))
+}
+
+func diffStdOut(_ string, fileB string, out output.Data) {
+	if len(out) == 0 {
+		return
+	}
+
+	for _, f := range out {
+		fmt.Printf("%s (%s)\n", f.Field, f.DeprecationReason)
+		fmt.Printf("  %s:%d\n", f.File, f.Line)
+	}
+}
+
+func diffJsonOut(out output.Data) {
+	bytes, err := json.Marshal(out)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to encode json: %s\n", err)
 		os.Exit(1)
