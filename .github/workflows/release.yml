@@ -18,8 +18,8 @@ jobs:
     - uses: actions/checkout@v3
     - uses: wangyoucao577/go-release-action@v1.34
       with:
+        project_path: "./cmd"
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         binary_name: "gql-lint"
-        # extra_files: README.md
