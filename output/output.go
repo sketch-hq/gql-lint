@@ -18,12 +18,12 @@ type Data []Field
 func CompareFiles(fileA string, fileB string) (Data, error) {
 	aContent, err := os.ReadFile(fileA)
 	if err != nil {
-		return nil, fmt.Errorf("could not read %s: %w", fileA, err)
+		return nil, err
 	}
 
 	bContent, err := os.ReadFile(fileB)
 	if err != nil {
-		return nil, fmt.Errorf("could not read %s: %w", fileB, err)
+		return nil, err
 	}
 
 	aData := Data{}
