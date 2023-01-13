@@ -1,0 +1,8 @@
+[
+    {
+        "field": "Article.isPublic",
+        "file": "somefile.graphql",
+        "line": 7,
+        "reason": "Please migrate to publicAccessLevel"
+    },
+]
