@@ -1,9 +1,15 @@
 type Book {
-  title: String @deprecated(reason: "untitled books are better")
-  author: Author
+  id: Int!
+  title: String! @deprecated(reason: "untitled books are better")
+  author: Author!
 }
 
 type Author {
-  name: String
+  id: Int!
+  name: String!
   books: [Book]
+}
+
+type Query {
+  author(id: Int!): Author
 }
