@@ -5,49 +5,63 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
 )
 
-var queriesDir string
-var schemaFile string
-var outputFormat string
+var (
+	queriesDir   string
+	schemaFile   string
+	outputFormat string
+	depFlags     *flag.FlagSet
+	diffFlags    *flag.FlagSet
+)
 
 func main() {
+	os.Exit(run())
+}
+
+func run() int {
+	depFlags = flag.NewFlagSet("deprecation", flag.ExitOnError)
+	diffFlags = flag.NewFlagSet("diff", flag.ExitOnError)
+
+	depFlags.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s deprecation [<args] <queries directory>\n", path.Base(os.Args[0]))
+		depFlags.PrintDefaults()
+	}
+	depFlags.StringVar(&schemaFile, "schema", "", "Server's schema file")
+	depFlags.StringVar(&outputFormat, "output", "stdout", "Output format. Choose between json and stdout. Defaults is stdout.")
+
+	diffFlags.StringVar(&outputFormat, "output", "stdout", "Output format. Choose between json and stdout. Defaults is stdout.")
+	diffFlags.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s diff [<args>] <json file> <json file>\n", path.Base(os.Args[0]))
+		diffFlags.PrintDefaults()
+	}
+
 	if len(os.Args) < 2 {
-		fmt.Fprint(os.Stderr, "expected 'deprecation' subcommand")
-		os.Exit(1)
+		help("")
+		return 0
 	}
 
 	switch os.Args[1] {
 	case "deprecation":
-		depFlags := flag.NewFlagSet("deprecation", flag.ExitOnError)
-		depFlags.Usage = func() {
-			fmt.Fprintf(os.Stderr, "Usage: %s <query/mutation directory>\n", os.Args[0])
-			depFlags.PrintDefaults()
-		}
-		depFlags.StringVar(&schemaFile, "schema", "", "Server's schema file")
-		depFlags.StringVar(&outputFormat, "output", "stdout", "Output format. Choose between json and stdout. Defaults is stdout.")
 		depFlags.Parse(os.Args[2:])
 		queriesDir = depFlags.Arg(0)
 		if queriesDir == "" {
-			fmt.Fprint(os.Stderr, "You must specify a directory for queries and mutations\n")
-			os.Exit(1)
+			fmt.Fprint(os.Stderr, "You must specify a directory for queries and mutations\n\n")
+			help(os.Args[1])
+			return 1
 		}
 		if schemaFile == "" {
-			fmt.Fprint(os.Stderr, "You must specify a schema file\n")
-			os.Exit(1)
+			fmt.Fprint(os.Stderr, "You must specify a schema file using -schema\n\n")
+			help(os.Args[1])
+			return 1
 		}
 		runDeprecation()
 
 	case "diff":
-		diffFlags := flag.NewFlagSet("diff", flag.ExitOnError)
-		diffFlags.StringVar(&outputFormat, "output", "stdout", "Output format. Choose between json and stdout. Defaults is stdout.")
-		diffFlags.Usage = func() {
-			fmt.Fprintf(os.Stderr, "Usage: %s <json file> <json file>\n", os.Args[0])
-			diffFlags.PrintDefaults()
-		}
 		diffFlags.Parse(os.Args[2:])
 		if len(diffFlags.Args()) < 2 {
 			fmt.Fprint(os.Stderr, "expected two json files to be given")
@@ -55,9 +69,25 @@ func main() {
 		runDiff(diffFlags.Arg(0), diffFlags.Arg(1))
 
 	default:
-		fmt.Println("expected 'deprecation' subcommand")
-		os.Exit(1)
+		help(os.Args[1])
+		return 0
 	}
+	return 0
+}
+
+func help(subcommand string) {
+	switch subcommand {
+	case "deprecation":
+		depFlags.Usage()
+	case "diff":
+		diffFlags.Usage()
+	default:
+		fmt.Printf("Usage: %s <command> [<args>]\n\n", path.Base(os.Args[0]))
+		depFlags.Usage()
+		fmt.Println()
+		diffFlags.Usage()
+	}
+
 }
 
 func runDeprecation() {

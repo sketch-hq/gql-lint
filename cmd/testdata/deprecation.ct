@@ -1,0 +1,29 @@
+# complains subcommand arguments are given
+$ gql-lint deprecation --> FAIL
+You must specify a directory for queries and mutations
+
+gql-lint deprecation [<args] <queries directory>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+  -schema string
+    	Server's schema file
+
+# complains if -schema is missing
+$ gql-lint deprecation /tmp --> FAIL
+You must specify a schema file using -schema
+
+gql-lint deprecation [<args] <queries directory>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+  -schema string
+    	Server's schema file
+
+# complains if a queries directory is not given
+$ gql-lint deprecation -schema ${VALID_SCHEMA_FILE} --> FAIL
+You must specify a directory for queries and mutations
+
+gql-lint deprecation [<args] <queries directory>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+  -schema string
+    	Server's schema file

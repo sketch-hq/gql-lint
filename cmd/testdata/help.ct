@@ -1,0 +1,41 @@
+# shows help output when no arguments are specified
+$ gql-lint
+Usage: gql-lint <command> [<args>]
+
+gql-lint deprecation [<args] <queries directory>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+  -schema string
+    	Server's schema file
+
+gql-lint diff [<args>] <json file> <json file>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+# shows help output when `--help` is used
+$ gql-lint --help
+Usage: gql-lint <command> [<args>]
+
+gql-lint deprecation [<args] <queries directory>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+  -schema string
+    	Server's schema file
+
+gql-lint diff [<args>] <json file> <json file>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+# shows help output `help` subcommand is specified
+$ gql-lint help
+Usage: gql-lint <command> [<args>]
+
+gql-lint deprecation [<args] <queries directory>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+  -schema string
+    	Server's schema file
+
+gql-lint diff [<args>] <json file> <json file>
+  -output string
+    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
