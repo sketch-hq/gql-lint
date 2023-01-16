@@ -10,7 +10,7 @@ import (
 func TestParseSchemaFile(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := ParseSchemaFile("testdata/with_deprecations.gql")
+	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
 
 	is.NoErr(err)
 
@@ -45,15 +45,15 @@ func TestParseSchemaFile(t *testing.T) {
 func TestParseSchemaFile_NotFound(t *testing.T) {
 	is := is.New(t)
 
-	_, err := ParseSchemaFile("testdata/not_found.gql")
+	_, err := ParseSchemaFile("testdata/schemas/not_found.gql")
 
-	is.True(strings.Contains(err.Error(), "open ./fixtures/not_found.gql: no such file or directory"))
+	is.True(strings.Contains(err.Error(), "open testdata/schemas/not_found.gql: no such file or directory"))
 }
 
 func TestParseQueryDir(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := ParseSchemaFile("testdata/with_deprecations.gql")
+	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
 	is.NoErr(err)
 
 	fields, err := ParseQueryDir("testdata/queries", schema)
