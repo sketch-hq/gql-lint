@@ -59,20 +59,19 @@ func run() int {
 			help(os.Args[1])
 			return 1
 		}
-		runDeprecation()
+		return runDeprecation()
 
 	case "diff":
 		diffFlags.Parse(os.Args[2:])
 		if len(diffFlags.Args()) < 2 {
 			fmt.Fprint(os.Stderr, "expected two json files to be given")
 		}
-		runDiff(diffFlags.Arg(0), diffFlags.Arg(1))
+		return runDiff(diffFlags.Arg(0), diffFlags.Arg(1))
 
 	default:
 		help(os.Args[1])
 		return 0
 	}
-	return 0
 }
 
 func help(subcommand string) {
@@ -90,17 +89,17 @@ func help(subcommand string) {
 
 }
 
-func runDeprecation() {
+func runDeprecation() int {
 	schema, err := parser.ParseSchemaFile(schemaFile)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to parse schema file %s: %s", schemaFile, err)
-		os.Exit(1)
+		return 1
 	}
 
 	queryFields, err := parser.ParseQueryDir(queriesDir, schema)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to parse files in %s: %s", queriesDir, err)
-		os.Exit(1)
+		return 1
 	}
 
 	switch outputFormat {
@@ -112,15 +111,16 @@ func runDeprecation() {
 
 	default:
 		fmt.Fprintf(os.Stderr, "%s is not a valid output format. Choose between json and stdout", outputFormat)
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
 
-func runDiff(fileA string, fileB string) {
+func runDiff(fileA string, fileB string) int {
 	result, err := output.CompareFiles(fileA, fileB)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to diff: %s", err)
-		os.Exit(1)
+		return 1
 	}
 
 	switch outputFormat {
@@ -132,8 +132,9 @@ func runDiff(fileA string, fileB string) {
 
 	default:
 		fmt.Fprintf(os.Stderr, "%s is not a valid output format. Choose between json and stdout\n", outputFormat)
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
 
 func deprecationStdOut(queryFields parser.QueryFieldList) {
