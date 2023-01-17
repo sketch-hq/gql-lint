@@ -46,15 +46,6 @@ func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 	return fields, nil
 }
 
-func IsFieldUsed(field *SchemaField, queryFields QueryFieldList) bool {
-	for _, queryField := range queryFields {
-		if queryField.SchemaPath == field.Name {
-			return true
-		}
-	}
-	return false
-}
-
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	var fields []SchemaField
 
