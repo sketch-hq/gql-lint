@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -11,8 +12,13 @@ import (
 	gqlvalidator "github.com/vektah/gqlparser/v2/validator"
 )
 
+type SchemaField struct {
+	Name string
+}
+
 type QueryField struct {
 	Path              string
+	SchemaPath        string
 	IsDeprecated      bool
 	DeprecationReason string
 	File              string
@@ -38,6 +44,24 @@ func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 	}
 
 	return fields, nil
+}
+
+func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
+	var fields []SchemaField
+
+	for name, definition := range schema.Types {
+		if ok, _ := isDeprecated(definition.Directives); ok {
+			fields = append(fields, SchemaField{Name: name})
+		}
+
+		for _, field := range definition.Fields {
+			if ok, _ := isDeprecated(field.Directives); ok {
+				fields = append(fields, SchemaField{Name: fmt.Sprintf("%s.%s", name, field.Name)})
+			}
+		}
+	}
+
+	return fields
 }
 
 func ParseSchemaFile(file string) (*ast.Schema, error) {
@@ -88,16 +112,16 @@ func parseQueryFile(file string) (*ast.QueryDocument, error) {
 
 func buildQueryTokens(query *ast.QueryDocument, fields QueryFieldList) QueryFieldList {
 	for _, o := range query.Operations {
-		fields = extractFields(o.SelectionSet, "", fields)
+		fields = extractFields(o.SelectionSet, "", "", fields)
 	}
 	for _, f := range query.Fragments {
-		fields = extractFields(f.SelectionSet, f.TypeCondition, fields)
+		fields = extractFields(f.SelectionSet, f.TypeCondition, "", fields)
 	}
 
 	return fields
 }
 
-func extractFields(set ast.SelectionSet, parentPath string, fields QueryFieldList) QueryFieldList {
+func extractFields(set ast.SelectionSet, parentPath string, parentType string, fields QueryFieldList) QueryFieldList {
 	for _, s := range set {
 		switch f := s.(type) {
 		case *ast.Field:
@@ -110,12 +134,13 @@ func extractFields(set ast.SelectionSet, parentPath string, fields QueryFieldLis
 
 			dep, depReason := isDeprecated(f.Definition.Directives)
 			if !dep {
-				fields = extractFields(f.SelectionSet, path, fields)
+				fields = extractFields(f.SelectionSet, path, f.Definition.Type.Name(), fields)
 				continue
 			}
 
 			field := QueryField{
 				Path:              path,
+				SchemaPath:        fmt.Sprintf("%s.%s", parentType, f.Name),
 				File:              f.Position.Src.Name,
 				Line:              f.Position.Line,
 				IsDeprecated:      dep,
@@ -123,7 +148,7 @@ func extractFields(set ast.SelectionSet, parentPath string, fields QueryFieldLis
 			}
 
 			fields = append(fields, field)
-			fields = extractFields(f.SelectionSet, path, fields)
+			fields = extractFields(f.SelectionSet, path, f.Definition.Type.Name(), fields)
 		}
 	}
 	return fields

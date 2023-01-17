@@ -63,7 +63,22 @@ func TestParseQueryDir(t *testing.T) {
 
 	field := fields[0]
 	is.Equal(field.Path, "author.books.title")
+	is.Equal(field.SchemaPath, "Book.title")
 	is.True(field.IsDeprecated)
 	is.Equal(field.File, "testdata/queries/deprecation.gql")
 	is.Equal(field.Line, 7)
+}
+
+func TestParseDeprecatedFields(t *testing.T) {
+	is := is.New(t)
+
+	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
+	is.NoErr(err)
+
+	fields := ParseDeprecatedFields(schema)
+
+	is.Equal(len(fields), 1)
+
+	field := fields[0]
+	is.Equal(field.Name, "Book.title")
 }
