@@ -11,7 +11,7 @@ import (
 )
 
 // set this to true if you want to update the test cases in `testdata/`
-var update = flag.Bool("update", true, "update test files with results")
+var update = flag.Bool("update", false, "update test files with results")
 
 func TestCLI(t *testing.T) {
 	ts, err := cmdtest.Read("testdata")
