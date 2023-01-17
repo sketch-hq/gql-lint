@@ -11,8 +11,6 @@ Flags:
 Global Flags:
       --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
 
-You must specify a directory for queries and mutations
-
 # complains if --schema is missing
 $ gql-lint deprecation /tmp --> FAIL
 Error: required flag(s) "schema" not set
@@ -26,8 +24,6 @@ Flags:
 Global Flags:
       --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
 
-required flag(s) "schema" not set
-
 # complains if a queries directory is not given
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --> FAIL
 Error: You must specify a directory for queries and mutations
@@ -40,8 +36,6 @@ Flags:
 
 Global Flags:
       --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-
-You must specify a directory for queries and mutations
 
 # outputs deprecations to stdout if no `--output` is given
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries

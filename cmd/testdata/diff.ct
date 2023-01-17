@@ -10,8 +10,6 @@ Flags:
 Global Flags:
       --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
 
-You must specify two files to diff
-
 # complains if only one file to diff was given
 $ gql-lint diff testdata/json/a.json --> FAIL
 Error: You must specify two files to diff
@@ -24,8 +22,6 @@ Flags:
 Global Flags:
       --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
 
-You must specify two files to diff
-
 # complains if json file doesn't exists
 $ gql-lint diff doesntexists.json doesntexists.json --> FAIL
 Error: Unable to diff: open doesntexists.json: no such file or directory
@@ -37,8 +33,6 @@ Flags:
 
 Global Flags:
       --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-
-Unable to diff: open doesntexists.json: no such file or directory
 
 # outputs diff to stdout if no `--output` is given
 $ gql-lint diff testdata/json/a.json testdata/json/b.json
