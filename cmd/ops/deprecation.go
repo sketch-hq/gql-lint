@@ -9,8 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	schemaFileFlag = "schema"
+)
+
 var (
-	//Local Flags
+	//Flags
 	schemaFile string
 
 	//Command
@@ -24,8 +28,8 @@ var (
 
 func init() {
 	Program.AddCommand(deprecationsCmd)
-	deprecationsCmd.Flags().StringVar(&schemaFile, "schema", "", "Server's schema file (required)")
-	deprecationsCmd.MarkFlagRequired("schema") //nolint:errcheck // will err if flag doesn't exist
+	deprecationsCmd.Flags().StringVar(&schemaFile, schemaFileFlag, "", "Server's schema file (required)")
+	deprecationsCmd.MarkFlagRequired(schemaFileFlag) //nolint:errcheck // will err if flag doesn't exist
 }
 
 func deprecationCmdArgsValidation(cmd *cobra.Command, args []string) error {
@@ -48,10 +52,10 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 	}
 
 	switch outputFormat {
-	case "stdout":
+	case stdoutFormat:
 		deprecationStdOut(queryFields)
 
-	case "json":
+	case jsonFormat:
 		err = deprecationJsonOut(queryFields)
 		if err != nil {
 			return err

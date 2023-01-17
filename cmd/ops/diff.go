@@ -1,7 +1,5 @@
 package ops
 
-//cobra command
-
 import (
 	"encoding/json"
 	"fmt"
@@ -29,17 +27,17 @@ func diffCmdArgsValidation(cmd *cobra.Command, args []string) error {
 }
 
 func diffCmdRun(cmd *cobra.Command, args []string) error {
-	fileA := args[0]
-	fileB := args[1]
+	fileA, fileB := args[0], args[1]
+
 	result, err := output.CompareFiles(fileA, fileB)
 	if err != nil {
 		return fmt.Errorf("Unable to diff: %s", err)
 	}
 
 	switch outputFormat {
-	case "stdout":
+	case stdoutFormat:
 		diffStdOut(fileA, fileB, result)
-	case "json":
+	case jsonFormat:
 		err = diffJsonOut(result)
 		if err != nil {
 			return err
