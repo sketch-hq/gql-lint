@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	schemaFileFlag = "schema"
+	schemaFileFlag  = "schema"
+	xcodeFormatFlag = "xcode"
 )
 
 var (
 	//Flags
-	schemaFile string
+	schemaFile  string
+	xcodeFormat bool
 
 	//Command
 	deprecationsCmd = &cobra.Command{
@@ -29,6 +31,7 @@ var (
 func init() {
 	Program.AddCommand(deprecationsCmd)
 	deprecationsCmd.Flags().StringVar(&schemaFile, schemaFileFlag, "", "Server's schema file (required)")
+	deprecationsCmd.Flags().BoolVar(&xcodeFormat, xcodeFormatFlag, false, "Override output format to xcode [EXPERIMENTAL]")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlag) //nolint:errcheck // will err if flag doesn't exist
 }
 
@@ -51,18 +54,22 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Unable to parse files in %s: %s", queriesDir, err)
 	}
 
-	switch outputFormat {
-	case stdoutFormat:
-		deprecationStdOut(queryFields)
+	if xcodeFormat {
+		deprecationXcodeOut(queryFields)
+	} else {
+		switch outputFormat {
+		case stdoutFormat:
+			deprecationStdOut(queryFields)
 
-	case jsonFormat:
-		err = deprecationJsonOut(queryFields)
-		if err != nil {
-			return err
+		case jsonFormat:
+			err = deprecationJsonOut(queryFields)
+			if err != nil {
+				return err
+			}
+
+		default:
+			return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
 		}
-
-	default:
-		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
 	}
 
 	return nil
@@ -96,4 +103,13 @@ func deprecationJsonOut(queryFields parser.QueryFieldList) error {
 
 	fmt.Print(string(bytes))
 	return nil
+}
+
+func deprecationXcodeOut(queryFields parser.QueryFieldList) {
+	for _, q := range queryFields {
+		fmt.Printf("%s:%d: warning: ", q.File, q.Line)
+		fmt.Printf("%s is deprecated ", q.Path)
+		fmt.Printf("- Reason: %s\n", q.DeprecationReason)
+		fmt.Println()
+	}
 }
