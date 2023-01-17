@@ -64,7 +64,9 @@ func run() int {
 	case "diff":
 		diffFlags.Parse(os.Args[2:])
 		if len(diffFlags.Args()) < 2 {
-			fmt.Fprint(os.Stderr, "expected two json files to be given")
+			fmt.Fprint(os.Stderr, "Expected two json files\n\n")
+			help(os.Args[1])
+			return 1
 		}
 		return runDiff(diffFlags.Arg(0), diffFlags.Arg(1))
 
@@ -119,7 +121,7 @@ func runDeprecation() int {
 func runDiff(fileA string, fileB string) int {
 	result, err := output.CompareFiles(fileA, fileB)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to diff: %s", err)
+		fmt.Fprintf(os.Stderr, "Unable to diff: %s\n", err)
 		return 1
 	}
 

@@ -1,4 +1,4 @@
-# complains subcommand arguments are given
+# complains if no subcommand arguments are given
 $ gql-lint deprecation --> FAIL
 You must specify a directory for queries and mutations
 
