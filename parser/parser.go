@@ -7,11 +7,16 @@ import (
 	"os"
 	"path/filepath"
 
-	gql "github.com/vektah/gqlparser/v2"
+	"github.com/sketch-hq/gql-lint/introspection"
+
 	"github.com/vektah/gqlparser/v2/ast"
 	gqlparser "github.com/vektah/gqlparser/v2/parser"
 	gqlvalidator "github.com/vektah/gqlparser/v2/validator"
 )
+
+const deprecated = `directive @deprecated(
+	reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION`
 
 type SchemaField struct {
 	Name string
@@ -84,17 +89,39 @@ func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	return fields
 }
 
-func ParseSchemaFile(file string) (*ast.Schema, error) {
-	return parseSchemaFile(file)
+func ParseSchemaUrl(url string) (*ast.Schema, error) {
+	jsonSchema, err := introspection.Fetch(url)
+	if err != nil {
+		return nil, err
+	}
+	schema, err := introspection.JsonToSDL(jsonSchema)
+	if err != nil {
+		return nil, err
+	}
+
+	return parseSchema(url, schema, true)
 }
 
-func parseSchemaFile(file string) (*ast.Schema, error) {
+func ParseSchemaFile(file string) (*ast.Schema, error) {
 	contents, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	source := &ast.Source{Name: file, Input: string(contents)}
-	schema, schemaerr := gql.LoadSchema(source)
+
+	return parseSchema(file, string(contents), false)
+}
+
+func parseSchema(name string, contents string, builtin bool) (*ast.Schema, error) {
+	// workaround as absinthe based graphql servers does include the deprecated
+	// directive in the schema.
+	sources := []*ast.Source{
+		{Input: deprecated},
+		// When parsing downloaded schemas built types are included. If we
+		// don't set bultin=true the validator will complain about types using
+		// reserved "__" names
+		{Name: name, Input: string(contents), BuiltIn: builtin},
+	}
+	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
 	if schemaerr != nil {
 		return nil, schemaerr
 	}
