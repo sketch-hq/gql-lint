@@ -21,7 +21,7 @@ var (
 
 	//Command
 	deprecationsCmd = &cobra.Command{
-		Use:   "deprecation [flags] queries_directory",
+		Use:   "deprecation [flags] queries_directory|queries_list_file",
 		Short: "Find deprecated fields in queries and mutations",
 		Args:  deprecationCmdArgsValidation,
 		RunE:  deprecationsCmdRun,
@@ -33,6 +33,12 @@ func init() {
 	deprecationsCmd.Flags().StringVar(&schemaFile, schemaFileFlag, "", "Server's schema file (required)")
 	deprecationsCmd.Flags().BoolVar(&xcodeFormat, xcodeFormatFlag, false, "Override output format to xcode [EXPERIMENTAL]")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlag) //nolint:errcheck // will err if flag doesn't exist
+
+	// TODO: This is required because the test suite doesn't finish the program and flags are not reset. Find a better way to do this.
+	cobra.OnFinalize(func() {
+		schemaFile = ""
+		xcodeFormat = false
+	})
 }
 
 func deprecationCmdArgsValidation(cmd *cobra.Command, args []string) error {
@@ -48,10 +54,10 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Unable to parse schema file %s: %s", schemaFile, err)
 	}
 
-	queriesDir := args[0]
-	queryFields, err := parser.ParseQueryDir(queriesDir, schema)
+	queriesSource := args[0]
+	queryFields, err := parser.ParseQuerySource(queriesSource, schema)
 	if err != nil {
-		return fmt.Errorf("Unable to parse files in %s: %s", queriesDir, err)
+		return fmt.Errorf("Unable to parse files in %s: %s", queriesSource, err)
 	}
 
 	if xcodeFormat {

@@ -10,7 +10,7 @@ import (
 func TestGetUnusedFields(t *testing.T) {
 	is := is.New(t)
 
-	unusedFields, err := GetUnusedFields("testdata/schemas/with_deprecations.gql", "testdata/queries/deprecation.gql")
+	unusedFields, err := GetUnusedFields("testdata/schemas/with_deprecations.gql", "testdata/queries/deprecation")
 	is.NoErr(err)
 
 	is.Equal(len(unusedFields), 1)
@@ -24,13 +24,13 @@ func TestIsFieldUsed(t *testing.T) {
 	schema, err := parser.ParseSchemaFile("testdata/schemas/with_deprecations.gql")
 	is.NoErr(err)
 
-	query, err := parser.ParseQueryDir("testdata/queries/deprecation.gql", schema)
+	query, err := parser.ParseQuerySource("testdata/queries/deprecation", schema)
 	is.NoErr(err)
 
 	used := IsFieldUsed(parser.SchemaField{Name: "Book.title"}, query)
 	is.True(used)
 
-	query, err = parser.ParseQueryDir("testdata/queries/one.gql", schema)
+	query, err = parser.ParseQuerySource("testdata/queries/one", schema)
 	is.NoErr(err)
 
 	used = IsFieldUsed(parser.SchemaField{Name: "Book.title"}, query)

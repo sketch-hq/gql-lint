@@ -12,7 +12,7 @@ func GetUnusedFields(schemaPath string, queriesPath string) ([]parser.SchemaFiel
 
 	deprecatedFields := parser.ParseDeprecatedFields(schema)
 
-	queries, err := parser.ParseQueryDir(queriesPath, schema)
+	queries, err := parser.ParseQuerySource(queriesPath, schema)
 	if err != nil {
 		return unusedFields, err
 	}

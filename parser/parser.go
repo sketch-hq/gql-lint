@@ -28,13 +28,27 @@ type QueryField struct {
 
 type QueryFieldList []QueryField
 
-func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
+func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
+	//check if file or directory
+	fileInfo, err := os.Stat(source)
+	if err != nil {
+		return nil, err
+	}
+
+	if fileInfo.IsDir() {
+		return parseQueryDir(source, schema)
+	} else {
+		return parseQueryList(source, schema)
+	}
+}
+
+func parseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 	files := findQueryFiles(dir)
 	// @todo: error out if no files are found
 	return queryTokensFromFiles(files, schema)
 }
 
-func ParseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
+func parseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
 	files, err := getLinesFromFile(file)
 	if err != nil {
 		return nil, err

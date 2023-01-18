@@ -50,13 +50,13 @@ func TestParseSchemaFile_NotFound(t *testing.T) {
 	is.True(strings.Contains(err.Error(), "open testdata/schemas/not_found.gql: no such file or directory"))
 }
 
-func TestParseQueryDir(t *testing.T) {
+func TestParseQuerySourceDir(t *testing.T) {
 	is := is.New(t)
 
 	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
 	is.NoErr(err)
 
-	fields, err := ParseQueryDir("testdata/queries", schema)
+	fields, err := ParseQuerySource("testdata/queries", schema)
 	is.NoErr(err)
 
 	is.Equal(len(fields), 1)
@@ -69,13 +69,13 @@ func TestParseQueryDir(t *testing.T) {
 	is.Equal(field.Line, 7)
 }
 
-func TestParseQueryList(t *testing.T) {
+func TestParseQuerySourceFile(t *testing.T) {
 	is := is.New(t)
 
 	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
 	is.NoErr(err)
 
-	fields, err := ParseQueryList("testdata/query_list.txt", schema)
+	fields, err := ParseQuerySource("testdata/query_list.txt", schema)
 	is.NoErr(err)
 
 	is.Equal(len(fields), 1)
