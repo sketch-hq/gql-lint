@@ -1,41 +1,53 @@
 # shows help output when no arguments are specified
 $ gql-lint
-Usage: gql-lint <command> [<args>]
+gql-lint is a tool to lint GraphQL queries and mutations
 
-gql-lint deprecation [<args] <queries directory>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-  -schema string
-    	Server's schema file
+Usage:
+  gql-lint [command]
 
-gql-lint diff [<args>] <json file> <json file>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+Available Commands:
+  deprecation Find deprecated fields in queries and mutations
+  diff        Find deprecated fields present in the first file but not in the second
+  help        Help about any command
+
+Flags:
+  -h, --help            help for gql-lint
+      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+Use "gql-lint [command] --help" for more information about a command.
 
 # shows help output when `--help` is used
 $ gql-lint --help
-Usage: gql-lint <command> [<args>]
+gql-lint is a tool to lint GraphQL queries and mutations
 
-gql-lint deprecation [<args] <queries directory>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-  -schema string
-    	Server's schema file
+Usage:
+  gql-lint [command]
 
-gql-lint diff [<args>] <json file> <json file>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+Available Commands:
+  deprecation Find deprecated fields in queries and mutations
+  diff        Find deprecated fields present in the first file but not in the second
+  help        Help about any command
+
+Flags:
+  -h, --help            help for gql-lint
+      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+Use "gql-lint [command] --help" for more information about a command.
 
 # shows help output `help` subcommand is specified
 $ gql-lint help
-Usage: gql-lint <command> [<args>]
+gql-lint is a tool to lint GraphQL queries and mutations
 
-gql-lint deprecation [<args] <queries directory>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-  -schema string
-    	Server's schema file
+Usage:
+  gql-lint [command]
 
-gql-lint diff [<args>] <json file> <json file>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+Available Commands:
+  deprecation Find deprecated fields in queries and mutations
+  diff        Find deprecated fields present in the first file but not in the second
+  help        Help about any command
+
+Flags:
+  -h, --help            help for gql-lint
+      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+Use "gql-lint [command] --help" for more information about a command.

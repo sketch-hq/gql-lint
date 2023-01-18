@@ -1,39 +1,48 @@
 # complains if no subcommand arguments are given
 $ gql-lint deprecation --> FAIL
-You must specify a directory for queries and mutations
+Error: You must specify a directory for queries and mutations
+Usage:
+  gql-lint deprecation [flags] queries_directory
 
-gql-lint deprecation [<args] <queries directory>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-  -schema string
-    	Server's schema file
+Flags:
+  -h, --help            help for deprecation
+      --schema string   Server's schema file (required)
 
-# complains if -schema is missing
+Global Flags:
+      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+# complains if --schema is missing
 $ gql-lint deprecation /tmp --> FAIL
-You must specify a schema file using -schema
+Error: required flag(s) "schema" not set
+Usage:
+  gql-lint deprecation [flags] queries_directory
 
-gql-lint deprecation [<args] <queries directory>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-  -schema string
-    	Server's schema file
+Flags:
+  -h, --help            help for deprecation
+      --schema string   Server's schema file (required)
+
+Global Flags:
+      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
 
 # complains if a queries directory is not given
-$ gql-lint deprecation -schema testdata/schemas/with_deprecations.gql --> FAIL
-You must specify a directory for queries and mutations
+$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --> FAIL
+Error: You must specify a directory for queries and mutations
+Usage:
+  gql-lint deprecation [flags] queries_directory
 
-gql-lint deprecation [<args] <queries directory>
-  -output string
-    	Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
-  -schema string
-    	Server's schema file
+Flags:
+  -h, --help            help for deprecation
+      --schema string   Server's schema file (required)
 
-# outputs deprecations to stdout if no `-output` is given
-$ gql-lint deprecation -schema testdata/schemas/with_deprecations.gql testdata/queries
+Global Flags:
+      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+
+# outputs deprecations to stdout if no `--output` is given
+$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries
 author.books.title is deprecated
   File:   testdata/queries/author/author.gql:7
   Reason: untitled books are better
 
 # outputs deprecations as json
-$ gql-lint deprecation -output json -schema testdata/schemas/with_deprecations.gql testdata/queries
+$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries
 [{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]
