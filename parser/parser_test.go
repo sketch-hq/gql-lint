@@ -101,22 +101,3 @@ func TestParseDeprecatedFields(t *testing.T) {
 	field := fields[0]
 	is.Equal(field.Name, "Book.title")
 }
-
-func TestIsFieldUsed(t *testing.T) {
-	is := is.New(t)
-
-	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
-	is.NoErr(err)
-
-	query, err := ParseQueryDir("testdata/queries/deprecation.gql", schema)
-	is.NoErr(err)
-
-	used := IsFieldUsed(&SchemaField{Name: "Book.title"}, query)
-	is.True(used)
-
-	query, err = ParseQueryDir("testdata/queries/one.gql", schema)
-	is.NoErr(err)
-
-	used = IsFieldUsed(&SchemaField{Name: "Book.title"}, query)
-	is.True(!used)
-}

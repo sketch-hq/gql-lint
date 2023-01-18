@@ -1,0 +1,16 @@
+type Book {
+  id: Int!
+  title: String! @deprecated(reason: "untitled books are better")
+  oldTitle: String! @deprecated(reason: "We want to change the name")
+  author: Author!
+}
+
+type Author {
+  id: Int!
+  name: String!
+  books: [Book]
+}
+
+type Query {
+  author(id: Int!): Author
+}

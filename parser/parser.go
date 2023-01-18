@@ -42,15 +42,6 @@ func ParseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
 	return queryTokensFromFiles(files, schema)
 }
 
-func IsFieldUsed(field *SchemaField, queryFields QueryFieldList) bool {
-	for _, queryField := range queryFields {
-		if queryField.SchemaPath == field.Name {
-			return true
-		}
-	}
-	return false
-}
-
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	var fields []SchemaField
 
