@@ -21,7 +21,7 @@ darwin-amd: $(DARWIN_AMD) ## Build for Darwin AMD (intel macOS)
 
 darwin-arm: $(DARWIN_ARM) ## Build for Darwin ARM (m1 macOS)
 
-universal: $(UNIVERSAL)
+universal: darwin-amd darwin-arm $(UNIVERSAL) ## Build for Darwin Universal (intel and m1 macOS)
 
 $(LINUX):
 	env GOOS=linux GOARCH=amd64 go build -v -o dist/$(LINUX) -ldflags="-s -w -X main.version=$(VERSION)"  ./cmd/gql-lint.go
