@@ -48,7 +48,7 @@ $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations
 [{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]
 
 # outputs deprecations as xcode
-$ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql testdata/queries
+$ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql testdata/queries/author
 testdata/queries/author/author.gql:7: warning: author.books.title is deprecated - Reason: untitled books are better
 
 # outputs deprecations given a queries list file
