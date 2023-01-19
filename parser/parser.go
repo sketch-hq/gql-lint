@@ -6,8 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-
-	"github.com/sketch-hq/gql-lint/introspection"
+	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
 	gqlparser "github.com/vektah/gqlparser/v2/parser"
@@ -89,38 +88,22 @@ func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	return fields
 }
 
-func ParseSchemaUrl(url string) (*ast.Schema, error) {
-	jsonSchema, err := introspection.Fetch(url)
-	if err != nil {
-		return nil, err
-	}
-	schema, err := introspection.JsonToSDL(jsonSchema)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseSchema(url, schema, true)
-}
-
-func ParseSchemaFile(file string) (*ast.Schema, error) {
-	contents, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return parseSchema(file, string(contents), false)
-}
-
-func parseSchema(name string, contents string, builtin bool) (*ast.Schema, error) {
-	// workaround as absinthe based graphql servers does include the deprecated
-	// directive in the schema.
+func ParseSchema(name string, contents string, hasBuiltin bool) (*ast.Schema, error) {
 	sources := []*ast.Source{
-		{Input: deprecated},
 		// When parsing downloaded schemas built types are included. If we
 		// don't set bultin=true the validator will complain about types using
 		// reserved "__" names
-		{Name: name, Input: string(contents), BuiltIn: builtin},
+		{Name: name, Input: string(contents), BuiltIn: hasBuiltin},
 	}
+	// workaround as absinthe based graphql servers does NOT include the deprecated
+	// directive in the schema.
+	if !strings.Contains(contents, "directive @deprecated") {
+		sources = append(sources, &ast.Source{Input: deprecated, BuiltIn: true})
+	}
+
+	contents = strings.Replace(contents, `Represents a plan "type"`, "Represents a plan type", -1)
+	fmt.Println(contents)
+
 	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
 	if schemaerr != nil {
 		return nil, schemaerr
