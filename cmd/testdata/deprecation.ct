@@ -38,13 +38,13 @@ Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # outputs deprecations to stdout if no `--output` is given
-$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries
+$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries/author
 author.books.title is deprecated
   File:   testdata/queries/author/author.gql:7
   Reason: untitled books are better
 
 # outputs deprecations as json
-$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries
+$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/author
 [{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]
 
 # outputs deprecations as xcode

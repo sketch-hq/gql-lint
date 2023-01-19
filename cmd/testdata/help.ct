@@ -9,6 +9,7 @@ Available Commands:
   deprecation Find deprecated fields in queries and mutations given a directory or a list of files
   diff        Find deprecated fields present in the first file but not in the second
   help        Help about any command
+  unused      Find unused deprecated fields
 
 Flags:
   -h, --help            help for gql-lint
@@ -27,6 +28,7 @@ Available Commands:
   deprecation Find deprecated fields in queries and mutations given a directory or a list of files
   diff        Find deprecated fields present in the first file but not in the second
   help        Help about any command
+  unused      Find unused deprecated fields
 
 Flags:
   -h, --help            help for gql-lint
@@ -45,6 +47,7 @@ Available Commands:
   deprecation Find deprecated fields in queries and mutations given a directory or a list of files
   diff        Find deprecated fields present in the first file but not in the second
   help        Help about any command
+  unused      Find unused deprecated fields
 
 Flags:
   -h, --help            help for gql-lint

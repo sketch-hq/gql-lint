@@ -51,7 +51,9 @@ func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error)
 
 func parseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 	files := findQueryFiles(dir)
-	// @todo: error out if no files are found
+	if len(files) == 0 {
+		return QueryFieldList{}, fmt.Errorf("no query files found in %s", dir)
+	}
 	return queryTokensFromFiles(files, schema)
 }
 
