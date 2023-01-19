@@ -6,13 +6,13 @@ Usage:
   gql-lint [command]
 
 Available Commands:
-  deprecation Find deprecated fields in queries and mutations
+  deprecation Find deprecated fields in queries and mutations given a directory or a list of files
   diff        Find deprecated fields present in the first file but not in the second
   help        Help about any command
 
 Flags:
   -h, --help            help for gql-lint
-      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 Use "gql-lint [command] --help" for more information about a command.
 
@@ -24,13 +24,13 @@ Usage:
   gql-lint [command]
 
 Available Commands:
-  deprecation Find deprecated fields in queries and mutations
+  deprecation Find deprecated fields in queries and mutations given a directory or a list of files
   diff        Find deprecated fields present in the first file but not in the second
   help        Help about any command
 
 Flags:
   -h, --help            help for gql-lint
-      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 Use "gql-lint [command] --help" for more information about a command.
 
@@ -42,12 +42,12 @@ Usage:
   gql-lint [command]
 
 Available Commands:
-  deprecation Find deprecated fields in queries and mutations
+  deprecation Find deprecated fields in queries and mutations given a directory or a list of files
   diff        Find deprecated fields present in the first file but not in the second
   help        Help about any command
 
 Flags:
   -h, --help            help for gql-lint
-      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 Use "gql-lint [command] --help" for more information about a command.

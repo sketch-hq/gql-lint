@@ -28,17 +28,24 @@ type QueryField struct {
 
 type QueryFieldList []QueryField
 
-func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
-	//check if file or directory
-	fileInfo, err := os.Stat(source)
+func isDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	if fileInfo.IsDir() {
-		return parseQueryDir(source, schema)
+	return fileInfo.IsDir(), nil
+}
+
+func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
+	if isDir, err := isDirectory(source); err != nil {
+		return nil, err
 	} else {
-		return parseQueryList(source, schema)
+		if isDir {
+			return parseQueryDir(source, schema)
+		} else {
+			return parseQueryList(source, schema)
+		}
 	}
 }
 
@@ -49,11 +56,11 @@ func parseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 }
 
 func parseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
-	files, err := getLinesFromFile(file)
+	queryPaths, err := getLinesFromFile(file)
 	if err != nil {
 		return nil, err
 	}
-	return queryTokensFromFiles(files, schema)
+	return queryTokensFromFiles(queryPaths, schema)
 }
 
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {

@@ -10,34 +10,35 @@ import (
 )
 
 const (
-	schemaFileFlag  = "schema"
-	xcodeFormatFlag = "xcode"
+	schemaFileFlag = "schema"
 )
 
 var (
 	//Flags
-	schemaFile  string
-	xcodeFormat bool
+	schemaFile string
 
 	//Command
 	deprecationsCmd = &cobra.Command{
-		Use:   "deprecation [flags] queries_directory|queries_list_file",
-		Short: "Find deprecated fields in queries and mutations",
-		Args:  deprecationCmdArgsValidation,
-		RunE:  deprecationsCmdRun,
+		Use:   "deprecation [flags] queries_directory|queries_files_list",
+		Short: "Find deprecated fields in queries and mutations given a directory or a list of files",
+		Long: `
+Find deprecated fields in queries and mutations given a directory or a list of files.
+
+The "queries_directory" argument is a directory containing all the queries and mutations. They can be in subdirectories. 
+The "queries_files_list" argument is a file containing a list of paths to queries and mutations. The file should contain one query or mutation per line.`,
+		Args: deprecationCmdArgsValidation,
+		RunE: deprecationsCmdRun,
 	}
 )
 
 func init() {
 	Program.AddCommand(deprecationsCmd)
 	deprecationsCmd.Flags().StringVar(&schemaFile, schemaFileFlag, "", "Server's schema file (required)")
-	deprecationsCmd.Flags().BoolVar(&xcodeFormat, xcodeFormatFlag, false, "Override output format to xcode [EXPERIMENTAL]")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlag) //nolint:errcheck // will err if flag doesn't exist
 
-	// TODO: This is required because the test suite doesn't finish the program and flags are not reset. Find a better way to do this.
+	// This is required because the test suite doesn't finish the program and flags are not reset.
 	cobra.OnFinalize(func() {
 		schemaFile = ""
-		xcodeFormat = false
 	})
 }
 
@@ -60,22 +61,19 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Unable to parse files in %s: %s", queriesSource, err)
 	}
 
-	if xcodeFormat {
-		deprecationXcodeOut(queryFields)
-	} else {
-		switch outputFormat {
-		case stdoutFormat:
-			deprecationStdOut(queryFields)
+	switch outputFormat {
+	case stdoutFormat:
+		deprecationStdOut(queryFields)
 
-		case jsonFormat:
-			err = deprecationJsonOut(queryFields)
-			if err != nil {
-				return err
-			}
-
-		default:
-			return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
+	case jsonFormat:
+		err = deprecationJsonOut(queryFields)
+		if err != nil {
+			return err
 		}
+	case xcodeFormat:
+		deprecationXcodeOut(queryFields)
+	default:
+		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
 	}
 
 	return nil

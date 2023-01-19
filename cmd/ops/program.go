@@ -8,6 +8,7 @@ const (
 	outputFormatFlag = "output"
 	jsonFormat       = "json"
 	stdoutFormat     = "stdout"
+	xcodeFormat      = "xcode"
 )
 
 var (
@@ -23,9 +24,9 @@ var (
 
 func init() {
 	Program.CompletionOptions.DisableDefaultCmd = true
-	Program.PersistentFlags().StringVar(&outputFormat, outputFormatFlag, stdoutFormat, "Output format. Choose between json and stdout. Defaults is stdout.")
+	Program.PersistentFlags().StringVar(&outputFormat, outputFormatFlag, stdoutFormat, "Output format. Choose between stdout, json, xcode.")
 
-	// TODO: This is required because the test suite doesn't finish the program and flags are not reset. Find a better way to do this.
+	// This is required because the test suite doesn't finish the program and flags are not reset
 	cobra.OnFinalize(func() {
 		outputFormat = stdoutFormat
 	})
