@@ -15,6 +15,10 @@ type Field struct {
 
 type Data []Field
 
+type UnusedField struct {
+	Field string `json:"field"`
+}
+
 func CompareFiles(fileA string, fileB string) (Data, error) {
 	aContent, err := os.ReadFile(fileA)
 	if err != nil {

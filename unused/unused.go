@@ -1,6 +1,8 @@
 package unused
 
-import "github.com/sketch-hq/gql-lint/parser"
+import (
+	"github.com/sketch-hq/gql-lint/parser"
+)
 
 type UnusedField struct {
 	Name string

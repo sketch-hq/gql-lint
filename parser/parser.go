@@ -30,7 +30,9 @@ type QueryFieldList []QueryField
 func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 	fields := QueryFieldList{}
 	files := findQueryFiles(dir)
-	// @todo: error out if no files are found
+	if len(files) == 0 {
+		return fields, fmt.Errorf("no query files found in %s", dir)
+	}
 
 	for _, file := range files {
 		doc, err := parseQueryFile(file)
