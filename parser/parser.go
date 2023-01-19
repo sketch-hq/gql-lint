@@ -93,16 +93,13 @@ func ParseSchema(name string, contents string, hasBuiltin bool) (*ast.Schema, er
 		// When parsing downloaded schemas built types are included. If we
 		// don't set bultin=true the validator will complain about types using
 		// reserved "__" names
-		{Name: name, Input: string(contents), BuiltIn: hasBuiltin},
+		{Name: name, Input: contents, BuiltIn: hasBuiltin},
 	}
 	// workaround as absinthe based graphql servers does NOT include the deprecated
 	// directive in the schema.
 	if !strings.Contains(contents, "directive @deprecated") {
 		sources = append(sources, &ast.Source{Input: deprecated, BuiltIn: true})
 	}
-
-	contents = strings.Replace(contents, `Represents a plan "type"`, "Represents a plan type", -1)
-	fmt.Println(contents)
 
 	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
 	if schemaerr != nil {
