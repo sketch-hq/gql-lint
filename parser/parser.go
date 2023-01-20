@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	gql "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	gqlparser "github.com/vektah/gqlparser/v2/parser"
 	gqlvalidator "github.com/vektah/gqlparser/v2/validator"
@@ -32,32 +33,47 @@ type QueryField struct {
 
 type QueryFieldList []QueryField
 
+func isDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+
+	return fileInfo.IsDir(), nil
+}
+
 func ParseSchemaFile(file string) (*ast.Schema, error) {
 	contents, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-
-	return ParseSchema(file, string(contents), false)
+	source := &ast.Source{Name: file, Input: string(contents)}
+	schema, schemaerr := gql.LoadSchema(source)
+	if schemaerr != nil {
+		return nil, schemaerr
+	}
+	return schema, nil
 }
 
-func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
-	fields := QueryFieldList{}
-	files := findQueryFiles(dir)
-	// @todo: error out if no files are found
-
-	for _, file := range files {
-		doc, err := parseQueryFile(file)
-		if err != nil {
-			return nil, err
-		}
-		// Ignoring errors here as there could be validation errors that we're not interested in.
-		// We only call `.Validate` so the parser can populate the `Definition` fields.
-		_ = gqlvalidator.Validate(schema, doc)
-		fields = buildQueryTokens(doc, fields)
+func ParseSchema(name string, contents string, hasBuiltin bool) (*ast.Schema, error) {
+	sources := []*ast.Source{
+		// When parsing downloaded schemas built types are included. If we
+		// don't set bultin=true the validator will complain about types using
+		// reserved "__" names
+		{Name: name, Input: contents, BuiltIn: hasBuiltin},
+	}
+	// workaround as absinthe based graphql servers does NOT include the deprecated
+	// directive in the schema.
+	if !strings.Contains(contents, "directive @deprecated") {
+		sources = append(sources, &ast.Source{Input: deprecated, BuiltIn: true})
 	}
 
-	return fileInfo.IsDir(), nil
+	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
+	if schemaerr != nil {
+		return nil, schemaerr
+	}
+
+	return schema, nil
 }
 
 func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
@@ -105,27 +121,6 @@ func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	}
 
 	return fields
-}
-
-func ParseSchema(name string, contents string, hasBuiltin bool) (*ast.Schema, error) {
-	sources := []*ast.Source{
-		// When parsing downloaded schemas built types are included. If we
-		// don't set bultin=true the validator will complain about types using
-		// reserved "__" names
-		{Name: name, Input: contents, BuiltIn: hasBuiltin},
-	}
-	// workaround as absinthe based graphql servers does NOT include the deprecated
-	// directive in the schema.
-	if !strings.Contains(contents, "directive @deprecated") {
-		sources = append(sources, &ast.Source{Input: deprecated, BuiltIn: true})
-	}
-
-	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
-	if schemaerr != nil {
-		return nil, schemaerr
-	}
-
-	return schema, nil
 }
 
 func findQueryFiles(startDir string) []string {
