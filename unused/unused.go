@@ -24,21 +24,19 @@ func GetUnusedFields(schemaPath string, queriesPaths []string) ([]UnusedField, e
 
 	deprecatedFields := parser.ParseDeprecatedFields(schema)
 
-	for _, queriesPath := range queriesPaths {
-		queries, err := parser.ParseQuerySource(queriesPath, schema)
-		if err != nil {
-			return []UnusedField{}, err
-		}
+	queries, err := parser.ParseQuerySource(queriesPaths, schema)
+	if err != nil {
+		return []UnusedField{}, err
+	}
 
-		for _, deprecatedField := range deprecatedFields {
-			used := isUsed(deprecatedField, queries)
-			recorded := isRecorded(deprecatedField, unusedFields)
+	for _, deprecatedField := range deprecatedFields {
+		used := isUsed(deprecatedField, queries)
+		recorded := isRecorded(deprecatedField, unusedFields)
 
-			if used && recorded {
-				delete(unusedFields, deprecatedField.Name)
-			} else if !used && !recorded {
-				unusedFields.Record(deprecatedField)
-			}
+		if used && recorded {
+			delete(unusedFields, deprecatedField.Name)
+		} else if !used && !recorded {
+			unusedFields.Record(deprecatedField)
 		}
 	}
 

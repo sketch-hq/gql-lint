@@ -34,10 +34,9 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	queriesSource := args[0]
-	queryFields, err := parser.ParseQuerySource(queriesSource, schema)
+	queryFields, err := parser.ParseQuerySource(args, schema)
 	if err != nil {
-		return fmt.Errorf("Unable to parse files in %s: %s", queriesSource, err)
+		return fmt.Errorf("Unable to parse files: %s", err)
 	}
 
 	switch flags.outputFormat {

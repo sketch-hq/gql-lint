@@ -1,8 +1,8 @@
 # complains if no subcommand arguments are given
 $ gql-lint unused --> FAIL
-Error: you must specify at least one directory for queries and mutations
+Error: you must specify at least one file with queries or mutations
 Usage:
-  gql-lint unused [flags] queries_directories
+  gql-lint unused [flags] queries
 
 Flags:
   -h, --help            help for unused
@@ -15,7 +15,7 @@ Global Flags:
 $ gql-lint unused /tmp --> FAIL
 Error: required flag(s) "schema" not set
 Usage:
-  gql-lint unused [flags] queries_directories
+  gql-lint unused [flags] queries
 
 Flags:
   -h, --help            help for unused
@@ -26,9 +26,9 @@ Global Flags:
 
 # complains if a queries directory is not given
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql --> FAIL
-Error: you must specify at least one directory for queries and mutations
+Error: you must specify at least one file with queries or mutations
 Usage:
-  gql-lint unused [flags] queries_directories
+  gql-lint unused [flags] queries
 
 Flags:
   -h, --help            help for unused
@@ -38,17 +38,17 @@ Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # outputs unused deprecated fields to stdout if no `--output` is given
-$ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title
+$ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 `Book.title` is unused and can be removed
-#
-# # outputs deprecations as json
-$ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title
+
+# outputs deprecations as json
+$ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 [{"field":"Book.title"}]
-#
-# # outputs success message if no unused fields are found
-$ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused
+
+# outputs success message if no unused fields are found
+$ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/with_title/with_title.gql testdata/queries/unused/without_title/without_title.gql
 Nothing can be removed right now
-#
-# # outputs empty json if no unused fields are found
-$ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused
+
+# outputs empty json if no unused fields are found
+$ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/with_title/with_title.gql testdata/queries/unused/without_title/without_title.gql
 []

@@ -1,11 +1,11 @@
 package parser
 
 import (
-	"bufio"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	gql "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -59,33 +59,31 @@ func ParseSchema(sources ...*ast.Source) (*ast.Schema, error) {
 	return schema, nil
 }
 
-func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
-	isDir, err := isDirectory(source)
+func ParseQuerySource(sources []string, schema *ast.Schema) (QueryFieldList, error) {
+	files, err := expandGlobs(sources)
 	if err != nil {
 		return nil, err
 	}
 
-	if isDir {
-		return parseQueryDir(source, schema)
-	} else {
-		return parseQueryList(source, schema)
-	}
-}
-
-func parseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
-	files := findQueryFiles(dir)
-	if len(files) == 0 {
-		return QueryFieldList{}, fmt.Errorf("no query files found in %s", dir)
-	}
 	return queryTokensFromFiles(files, schema)
 }
 
-func parseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
-	queryPaths, err := getLinesFromFile(file)
-	if err != nil {
-		return nil, err
+func expandGlobs(sources []string) ([]string, error) {
+	var files []string
+	for _, source := range sources {
+		if strings.Contains(source, "*") {
+			matches, err := filepath.Glob(source)
+			if err != nil {
+				return files, err
+			}
+
+			files = append(files, matches...)
+		} else {
+			files = append(files, source)
+		}
 	}
-	return queryTokensFromFiles(queryPaths, schema)
+
+	return files, nil
 }
 
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
@@ -119,22 +117,6 @@ func findQueryFiles(startDir string) []string {
 		return nil
 	})
 	return files
-}
-
-func getLinesFromFile(file string) ([]string, error) {
-	var lines []string
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	return lines, scanner.Err()
 }
 
 func parseQueryFile(file string) (*ast.QueryDocument, error) {
