@@ -6,17 +6,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	gql "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	gqlparser "github.com/vektah/gqlparser/v2/parser"
 	gqlvalidator "github.com/vektah/gqlparser/v2/validator"
 )
-
-const deprecated = `directive @deprecated(
-	reason: String = "No longer supported"
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION`
 
 type SchemaField struct {
 	Name string
@@ -55,19 +50,7 @@ func ParseSchemaFile(file string) (*ast.Schema, error) {
 	return schema, nil
 }
 
-func ParseSchema(name string, contents string, hasBuiltin bool) (*ast.Schema, error) {
-	sources := []*ast.Source{
-		// When parsing downloaded schemas built types are included. If we
-		// don't set bultin=true the validator will complain about types using
-		// reserved "__" names
-		{Name: name, Input: contents, BuiltIn: hasBuiltin},
-	}
-	// workaround as absinthe based graphql servers does NOT include the deprecated
-	// directive in the schema.
-	if !strings.Contains(contents, "directive @deprecated") {
-		sources = append(sources, &ast.Source{Input: deprecated, BuiltIn: true})
-	}
-
+func ParseSchema(sources ...*ast.Source) (*ast.Schema, error) {
 	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
 	if schemaerr != nil {
 		return nil, schemaerr

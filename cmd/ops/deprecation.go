@@ -6,6 +6,7 @@ import (
 
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
+	"github.com/sketch-hq/gql-lint/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -23,14 +24,14 @@ The "queries_files_list" argument is a file containing a list of paths to querie
 
 func init() {
 	Program.AddCommand(deprecationsCmd)
-	deprecationsCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema file (required)")
+	deprecationsCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
-	schema, err := parser.ParseSchemaFile(flags.schemaFile)
+	schema, err := schema.Load(flags.schemaFile)
 	if err != nil {
-		return fmt.Errorf("Unable to parse schema file %s: %s", flags.schemaFile, err)
+		return err
 	}
 
 	queriesSource := args[0]

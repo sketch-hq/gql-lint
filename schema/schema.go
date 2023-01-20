@@ -7,23 +7,64 @@ import (
 	"github.com/sketch-hq/gql-lint/introspection"
 	"github.com/sketch-hq/gql-lint/parser"
 	"github.com/vektah/gqlparser/v2/ast"
+	gqlvalidator "github.com/vektah/gqlparser/v2/validator"
 )
 
+const deprecated = `directive @deprecated(
+	reason: String = "No longer supported"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION`
+
 func Load(source string) (*ast.Schema, error) {
-	var builtin bool
-	var contents []byte
-	var err error
-
-	if strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://") {
-		builtin = true
-		contents, err = introspection.Load(source)
-	} else {
-		contents, err = os.ReadFile(source)
-	}
-
+	loader := schemaSources(source)
+	sources, err := loader.Load(source)
 	if err != nil {
 		return nil, err
 	}
 
-	return parser.ParseSchema(source, string(contents), builtin)
+	return parser.ParseSchema(sources...)
+}
+
+type SchemaSource interface {
+	Load(source string) ([]*ast.Source, error)
+}
+
+type FileSchemaSource struct{}
+
+func (s FileSchemaSource) Load(source string) ([]*ast.Source, error) {
+	contents, err := os.ReadFile(source)
+	if err != nil {
+		return nil, err
+	}
+
+	return []*ast.Source{
+		gqlvalidator.Prelude,
+		{Name: source, Input: string(contents), BuiltIn: false},
+	}, nil
+}
+
+type HttpSchemaSource struct{}
+
+func (s HttpSchemaSource) Load(source string) ([]*ast.Source, error) {
+	contents, err := introspection.Load(source)
+	if err != nil {
+		return nil, err
+	}
+
+	schemaString := string(contents)
+	sources := []*ast.Source{{Name: source, Input: schemaString, BuiltIn: true}}
+
+	// workaround for absinthe based graphql servers that does NOT include the deprecated
+	// directive in the schema.
+	if !strings.Contains(schemaString, "directive @deprecated") {
+		sources = append(sources, &ast.Source{Input: deprecated, BuiltIn: false})
+	}
+
+	return sources, nil
+}
+
+func schemaSources(source string) SchemaSource {
+	if strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://") {
+		return HttpSchemaSource{}
+	}
+	return FileSchemaSource{}
 }
