@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
 
 	gql "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -59,31 +58,8 @@ func ParseSchema(sources ...*ast.Source) (*ast.Schema, error) {
 	return schema, nil
 }
 
-func ParseQuerySource(sources []string, schema *ast.Schema) (QueryFieldList, error) {
-	files, err := expandGlobs(sources)
-	if err != nil {
-		return nil, err
-	}
-
+func ParseQuerySource(files []string, schema *ast.Schema) (QueryFieldList, error) {
 	return queryTokensFromFiles(files, schema)
-}
-
-func expandGlobs(sources []string) ([]string, error) {
-	var files []string
-	for _, source := range sources {
-		if strings.Contains(source, "*") {
-			matches, err := filepath.Glob(source)
-			if err != nil {
-				return files, err
-			}
-
-			files = append(files, matches...)
-		} else {
-			files = append(files, source)
-		}
-	}
-
-	return files, nil
 }
 
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {

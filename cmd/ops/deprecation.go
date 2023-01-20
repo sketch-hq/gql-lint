@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
 	"github.com/sketch-hq/gql-lint/schema"
@@ -34,7 +35,12 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	queryFields, err := parser.ParseQuerySource(args, schema)
+	queryFiles, err := input.QueryFiles(args)
+	if err != nil {
+		return fmt.Errorf("Error: %s", err)
+	}
+
+	queryFields, err := parser.ParseQuerySource(queryFiles, schema)
 	if err != nil {
 		return fmt.Errorf("Unable to parse files: %s", err)
 	}

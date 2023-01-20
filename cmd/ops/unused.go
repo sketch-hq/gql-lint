@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/unused"
 	"github.com/spf13/cobra"
@@ -22,9 +23,13 @@ func init() {
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
-func unusedCmdRun(cmd *cobra.Command, queriesDirs []string) error {
-	unusedFields, err := unused.GetUnusedFields(flags.schemaFile, queriesDirs)
+func unusedCmdRun(cmd *cobra.Command, args []string) error {
+	queryFiles, err := input.QueryFiles(args)
+	if err != nil {
+		return fmt.Errorf("Error: %s", err)
+	}
 
+	unusedFields, err := unused.GetUnusedFields(flags.schemaFile, queryFiles)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
