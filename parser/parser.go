@@ -32,10 +32,29 @@ type QueryField struct {
 
 type QueryFieldList []QueryField
 
-func isDirectory(path string) (bool, error) {
-	fileInfo, err := os.Stat(path)
+func ParseSchemaFile(file string) (*ast.Schema, error) {
+	contents, err := os.ReadFile(file)
 	if err != nil {
-		return false, err
+		return nil, err
+	}
+
+	return ParseSchema(file, string(contents), false)
+}
+
+func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
+	fields := QueryFieldList{}
+	files := findQueryFiles(dir)
+	// @todo: error out if no files are found
+
+	for _, file := range files {
+		doc, err := parseQueryFile(file)
+		if err != nil {
+			return nil, err
+		}
+		// Ignoring errors here as there could be validation errors that we're not interested in.
+		// We only call `.Validate` so the parser can populate the `Definition` fields.
+		_ = gqlvalidator.Validate(schema, doc)
+		fields = buildQueryTokens(doc, fields)
 	}
 
 	return fileInfo.IsDir(), nil
