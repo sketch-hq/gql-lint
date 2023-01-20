@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"bufio"
 	"fmt"
 	"io/fs"
 	"os"
@@ -27,25 +28,42 @@ type QueryField struct {
 
 type QueryFieldList []QueryField
 
-func ParseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
-	fields := QueryFieldList{}
+func isDirectory(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+
+	return fileInfo.IsDir(), nil
+}
+
+func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
+	isDir, err := isDirectory(source)
+	if err != nil {
+		return nil, err
+	}
+
+	if isDir {
+		return parseQueryDir(source, schema)
+	} else {
+		return parseQueryList(source, schema)
+	}
+}
+
+func parseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
 	files := findQueryFiles(dir)
 	if len(files) == 0 {
-		return fields, fmt.Errorf("no query files found in %s", dir)
+		return QueryFieldList{}, fmt.Errorf("no query files found in %s", dir)
 	}
+	return queryTokensFromFiles(files, schema)
+}
 
-	for _, file := range files {
-		doc, err := parseQueryFile(file)
-		if err != nil {
-			return nil, err
-		}
-		// Ignoring errors here as there could be validation errors that we're not interested in.
-		// We only call `.Validate` so the parser can populate the `Definition` fields.
-		_ = gqlvalidator.Validate(schema, doc)
-		fields = buildQueryTokens(doc, fields)
+func parseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
+	queryPaths, err := getLinesFromFile(file)
+	if err != nil {
+		return nil, err
 	}
-
-	return fields, nil
+	return queryTokensFromFiles(queryPaths, schema)
 }
 
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
@@ -99,6 +117,22 @@ func findQueryFiles(startDir string) []string {
 	return files
 }
 
+func getLinesFromFile(file string) ([]string, error) {
+	var lines []string
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	return lines, scanner.Err()
+}
+
 func parseQueryFile(file string) (*ast.QueryDocument, error) {
 	queryContents, err := os.ReadFile(file)
 	if err != nil {
@@ -110,6 +144,22 @@ func parseQueryFile(file string) (*ast.QueryDocument, error) {
 		return nil, queryerr
 	}
 	return doc, nil
+}
+
+func queryTokensFromFiles(files []string, schema *ast.Schema) (QueryFieldList, error) {
+	fields := QueryFieldList{}
+	for _, file := range files {
+		doc, err := parseQueryFile(file)
+		if err != nil {
+			return nil, err
+		}
+		// Ignoring errors here as there could be validation errors that we're not interested in.
+		// We only call `.Validate` so the parser can populate the `Definition` fields.
+		_ = gqlvalidator.Validate(schema, doc)
+		fields = buildQueryTokens(doc, fields)
+	}
+
+	return fields, nil
 }
 
 func buildQueryTokens(query *ast.QueryDocument, fields QueryFieldList) QueryFieldList {

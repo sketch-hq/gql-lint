@@ -42,6 +42,8 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+	case xcodeFormat:
+		diffXcodeOut(result)
 	default:
 		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
 	}
@@ -68,4 +70,13 @@ func diffJsonOut(out output.Data) error {
 
 	fmt.Print(string(bytes))
 	return nil
+}
+
+func diffXcodeOut(out output.Data) {
+	for _, f := range out {
+		fmt.Printf("%s:%d: warning: ", f.File, f.Line)
+		fmt.Printf("%s is deprecated ", f.Field)
+		fmt.Printf("- Reason: %s\n", f.DeprecationReason)
+		fmt.Println()
+	}
 }

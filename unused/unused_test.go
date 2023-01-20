@@ -12,8 +12,8 @@ func TestGetUnusedFields(t *testing.T) {
 	unusedFields, err := GetUnusedFields(
 		"testdata/schemas/with_deprecations.gql",
 		[]string{
-			"testdata/queries/one.gql",
-			"testdata/queries/deprecation.gql",
+			"testdata/queries/one",
+			"testdata/queries/deprecation",
 		},
 	)
 	is.NoErr(err)

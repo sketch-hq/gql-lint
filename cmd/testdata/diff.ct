@@ -8,7 +8,7 @@ Flags:
   -h, --help   help for diff
 
 Global Flags:
-      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # complains if only one file to diff was given
 $ gql-lint diff testdata/json/a.json --> FAIL
@@ -20,7 +20,7 @@ Flags:
   -h, --help   help for diff
 
 Global Flags:
-      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # complains if json file doesn't exists
 $ gql-lint diff doesntexists.json doesntexists.json --> FAIL
@@ -32,7 +32,7 @@ Flags:
   -h, --help   help for diff
 
 Global Flags:
-      --output string   Output format. Choose between json and stdout. Defaults is stdout. (default "stdout")
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # outputs diff to stdout if no `--output` is given
 $ gql-lint diff testdata/json/a.json testdata/json/b.json
@@ -42,3 +42,7 @@ Article.view (Please migrate to Article.permissions)
 # outputs diff as json
 $ gql-lint diff --output json testdata/json/a.json testdata/json/b.json
 [{"field":"Article.view","file":"somefile.graphql","line":13,"reason":"Please migrate to Article.permissions"}]
+
+# outputs diff as xcode
+$ gql-lint diff --output xcode testdata/json/a.json testdata/json/b.json
+somefile.graphql:13: warning: Article.view is deprecated - Reason: Please migrate to Article.permissions

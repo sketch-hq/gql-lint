@@ -19,10 +19,15 @@ var (
 
 	//Command
 	deprecationsCmd = &cobra.Command{
-		Use:   "deprecation [flags] queries_directory",
-		Short: "Find deprecated fields in queries and mutations",
-		Args:  deprecationCmdArgsValidation,
-		RunE:  deprecationsCmdRun,
+		Use:   "deprecation [flags] queries_directory|queries_files_list",
+		Short: "Find deprecated fields in queries and mutations given a directory or a list of files",
+		Long: `
+Find deprecated fields in queries and mutations given a directory or a list of files.
+
+The "queries_directory" argument is a directory containing all the queries and mutations. They can be in subdirectories. 
+The "queries_files_list" argument is a file containing a list of paths to queries and mutations. The file should contain one query or mutation per line.`,
+		Args: deprecationCmdArgsValidation,
+		RunE: deprecationsCmdRun,
 	}
 )
 
@@ -30,6 +35,11 @@ func init() {
 	Program.AddCommand(deprecationsCmd)
 	deprecationsCmd.Flags().StringVar(&schemaFile, schemaFileFlag, "", "Server's schema file (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlag) //nolint:errcheck // will err if flag doesn't exist
+
+	// This is required because the test suite doesn't finish the program and flags are not reset.
+	cobra.OnFinalize(func() {
+		schemaFile = ""
+	})
 }
 
 func deprecationCmdArgsValidation(cmd *cobra.Command, args []string) error {
@@ -45,10 +55,10 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Unable to parse schema file %s: %s", schemaFile, err)
 	}
 
-	queriesDir := args[0]
-	queryFields, err := parser.ParseQueryDir(queriesDir, schema)
+	queriesSource := args[0]
+	queryFields, err := parser.ParseQuerySource(queriesSource, schema)
 	if err != nil {
-		return fmt.Errorf("Unable to parse files in %s: %s", queriesDir, err)
+		return fmt.Errorf("Unable to parse files in %s: %s", queriesSource, err)
 	}
 
 	switch outputFormat {
@@ -60,7 +70,8 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-
+	case xcodeFormat:
+		deprecationXcodeOut(queryFields)
 	default:
 		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
 	}
@@ -96,4 +107,13 @@ func deprecationJsonOut(queryFields parser.QueryFieldList) error {
 
 	fmt.Print(string(bytes))
 	return nil
+}
+
+func deprecationXcodeOut(queryFields parser.QueryFieldList) {
+	for _, q := range queryFields {
+		fmt.Printf("%s:%d: warning: ", q.File, q.Line)
+		fmt.Printf("%s is deprecated ", q.Path)
+		fmt.Printf("- Reason: %s\n", q.DeprecationReason)
+		fmt.Println()
+	}
 }
