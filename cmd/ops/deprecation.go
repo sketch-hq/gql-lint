@@ -19,7 +19,6 @@ Find deprecated fields in queries and mutations given a directory or a list of f
 
 The "queries_directory" argument is a directory containing all the queries and mutations. They can be in subdirectories. 
 The "queries_files_list" argument is a file containing a list of paths to queries and mutations. The file should contain one query or mutation per line.`,
-	Args: ExactArgs(1, "You must specify a directory for queries and mutations"),
 	RunE: deprecationsCmdRun,
 }
 
@@ -29,7 +28,20 @@ func init() {
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
+func validateDeprecationCmdArgs(args []string) error {
+	if len(args) != 1 {
+		return fmt.Errorf("you must specify at least one file with queries or mutations")
+	}
+	return nil
+}
+
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
+	args = input.ReadArgs(cmd, args)
+
+	if err := validateDeprecationCmdArgs(args); err != nil {
+		return err
+	}
+
 	schema, err := schema.Load(flags.schemaFile)
 	if err != nil {
 		return err

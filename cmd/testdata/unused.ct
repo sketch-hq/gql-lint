@@ -1,6 +1,6 @@
 # complains if no subcommand arguments are given
 $ gql-lint unused --> FAIL
-Error: you must specify at least one file with queries or mutations
+Error: required flag(s) "schema" not set
 Usage:
   gql-lint unused [flags] queries
 

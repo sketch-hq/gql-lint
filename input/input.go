@@ -1,20 +1,45 @@
 package input
 
 import (
+	"bufio"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func QueryFiles(args []string) ([]string, error) {
-	files, err := expandGlobs(args)
-
-	return files, err
+type command interface {
+	InOrStdin() io.Reader
 }
 
-func expandGlobs(sources []string) ([]string, error) {
+func ReadArgs(cmd command, args []string) []string {
+	if !isInputFromPipe() {
+		return args
+	}
+
+	return readPipedArgs(cmd)
+}
+
+func isInputFromPipe() bool {
+	fileInfo, _ := os.Stdin.Stat()
+	return fileInfo.Mode()&os.ModeCharDevice == 0
+}
+
+func readPipedArgs(cmd command) []string {
+	var args []string
+
+	r := cmd.InOrStdin()
+	scanner := bufio.NewScanner(bufio.NewReader(r))
+	for scanner.Scan() {
+		args = append(args, strings.Split(scanner.Text(), " ")...)
+	}
+
+	return args
+}
+
+func QueryFiles(args []string) ([]string, error) {
 	var files []string
-	for _, source := range sources {
+	for _, source := range args {
 		if strings.Contains(source, "*") {
 			matches, err := glob(source)
 			if err != nil {

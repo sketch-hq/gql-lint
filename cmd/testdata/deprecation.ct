@@ -1,6 +1,6 @@
 # complains if no subcommand arguments are given
 $ gql-lint deprecation --> FAIL
-Error: You must specify a directory for queries and mutations
+Error: required flag(s) "schema" not set
 Usage:
   gql-lint deprecation [flags] queries_directory|queries_files_list
 
@@ -26,7 +26,7 @@ Global Flags:
 
 # complains if a queries directory is not given
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --> FAIL
-Error: You must specify a directory for queries and mutations
+Error: you must specify at least one file with queries or mutations
 Usage:
   gql-lint deprecation [flags] queries_directory|queries_files_list
 
