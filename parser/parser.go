@@ -38,14 +38,15 @@ func isDirectory(path string) (bool, error) {
 }
 
 func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
-	if isDir, err := isDirectory(source); err != nil {
+	isDir, err := isDirectory(source)
+	if err != nil {
 		return nil, err
+	}
+
+	if isDir {
+		return parseQueryDir(source, schema)
 	} else {
-		if isDir {
-			return parseQueryDir(source, schema)
-		} else {
-			return parseQueryList(source, schema)
-		}
+		return parseQueryList(source, schema)
 	}
 }
 
