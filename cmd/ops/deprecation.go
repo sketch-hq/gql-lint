@@ -17,7 +17,7 @@ Find deprecated fields in queries and mutations given a directory or a list of f
 
 The "queries_directory" argument is a directory containing all the queries and mutations. They can be in subdirectories. 
 The "queries_files_list" argument is a file containing a list of paths to queries and mutations. The file should contain one query or mutation per line.`,
-	Args: exactlyNArgsValidator(1, "you must specify a directory for queries and mutations"),
+	Args: exactlyNArgsValidator(1, "You must specify a directory for queries and mutations"),
 	RunE: deprecationsCmdRun,
 }
 
