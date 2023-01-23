@@ -12,7 +12,7 @@ import (
 var unusedCmd = &cobra.Command{
 	Use:   "unused [flags] queries_directories",
 	Short: "Find unused deprecated fields",
-	Args:  atLeastNArgsValidator(1, "you must specify at least one directory for queries and mutations"),
+	Args:  MinimumNArgs(1, "you must specify at least one directory for queries and mutations"),
 	RunE:  unusedCmdRun,
 }
 

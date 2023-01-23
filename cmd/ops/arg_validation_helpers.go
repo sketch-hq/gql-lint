@@ -6,18 +6,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func exactlyNArgsValidator(n int, errMsg string) cobra.PositionalArgs {
+func ExactArgs(n int, errMsg string) cobra.PositionalArgs {
 	return func(cmd *cobra.Command, args []string) error {
-		if len(args) != n {
+		if err := cobra.ExactArgs(n)(cmd, args); err != nil {
 			return fmt.Errorf(errMsg)
 		}
 		return nil
 	}
 }
 
-func atLeastNArgsValidator(n int, errMsg string) cobra.PositionalArgs {
+func MinimumNArgs(n int, errMsg string) cobra.PositionalArgs {
 	return func(cmd *cobra.Command, args []string) error {
-		if len(args) < n {
+		if err := cobra.MinimumNArgs(n)(cmd, args); err != nil {
 			return fmt.Errorf(errMsg)
 		}
 		return nil

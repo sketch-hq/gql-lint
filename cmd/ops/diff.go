@@ -11,7 +11,7 @@ import (
 var diffCmd = &cobra.Command{
 	Use:   "diff [flags] fileA fileB",
 	Short: "Find deprecated fields present in the first file but not in the second",
-	Args:  exactlyNArgsValidator(2, "You must specify two files to diff"),
+	Args:  ExactArgs(2, "You must specify two files to diff"),
 	RunE:  diffCmdRun,
 }
 
