@@ -9,37 +9,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	//Command
-	unusedCmd = &cobra.Command{
-		Use:   "unused [flags] queries_directories",
-		Short: "Find unused deprecated fields",
-		Args:  unusedCmdArgsValidation,
-		RunE:  unusedCmdRun,
-	}
-)
+var unusedCmd = &cobra.Command{
+	Use:   "unused [flags] queries_directories",
+	Short: "Find unused deprecated fields",
+	Args:  MinimumNArgs(1, "you must specify at least one directory for queries and mutations"),
+	RunE:  unusedCmdRun,
+}
 
 func init() {
 	Program.AddCommand(unusedCmd)
-	unusedCmd.Flags().StringVar(&schemaFile, schemaFileFlag, "", "Server's schema file (required)")
-	unusedCmd.MarkFlagRequired(schemaFileFlag) //nolint:errcheck // will err if flag doesn't exist
-}
-
-func unusedCmdArgsValidation(cmd *cobra.Command, args []string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("you must specify at least one directory for queries and mutations")
-	}
-	return nil
+	unusedCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema file (required)")
+	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
 func unusedCmdRun(cmd *cobra.Command, queriesDirs []string) error {
-	unusedFields, err := unused.GetUnusedFields(schemaFile, queriesDirs)
+	unusedFields, err := unused.GetUnusedFields(flags.schemaFile, queriesDirs)
 
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
 
-	switch outputFormat {
+	switch flags.outputFormat {
 	case stdoutFormat:
 		unusedStdOut(unusedFields)
 
@@ -50,7 +40,7 @@ func unusedCmdRun(cmd *cobra.Command, queriesDirs []string) error {
 		}
 
 	default:
-		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
+		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", flags.outputFormat)
 	}
 
 	return nil

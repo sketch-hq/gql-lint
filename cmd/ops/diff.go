@@ -11,19 +11,12 @@ import (
 var diffCmd = &cobra.Command{
 	Use:   "diff [flags] fileA fileB",
 	Short: "Find deprecated fields present in the first file but not in the second",
-	Args:  diffCmdArgsValidation,
+	Args:  ExactArgs(2, "You must specify two files to diff"),
 	RunE:  diffCmdRun,
 }
 
 func init() {
 	Program.AddCommand(diffCmd)
-}
-
-func diffCmdArgsValidation(cmd *cobra.Command, args []string) error {
-	if len(args) != 2 {
-		return fmt.Errorf("You must specify two files to diff")
-	}
-	return nil
 }
 
 func diffCmdRun(cmd *cobra.Command, args []string) error {
@@ -34,7 +27,7 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Unable to diff: %s", err)
 	}
 
-	switch outputFormat {
+	switch flags.outputFormat {
 	case stdoutFormat:
 		diffStdOut(fileA, fileB, result)
 	case jsonFormat:
@@ -45,7 +38,7 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 	case xcodeFormat:
 		diffXcodeOut(result)
 	default:
-		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", outputFormat)
+		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", flags.outputFormat)
 	}
 
 	return nil
