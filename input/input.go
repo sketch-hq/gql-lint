@@ -1,8 +1,8 @@
 package input
 
 import (
-	"bufio"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,12 +12,12 @@ type command interface {
 	InOrStdin() io.Reader
 }
 
-func ReadArgs(cmd command, args []string) []string {
+func ReadArgs(args []string) ([]string, error) {
 	if !isInputFromPipe() {
-		return args
+		return args, nil
 	}
 
-	return readPipedArgs(cmd)
+	return readPipedArgs()
 }
 
 func isInputFromPipe() bool {
@@ -25,16 +25,16 @@ func isInputFromPipe() bool {
 	return fileInfo.Mode()&os.ModeCharDevice == 0
 }
 
-func readPipedArgs(cmd command) []string {
+func readPipedArgs() ([]string, error) {
 	var args []string
 
-	r := cmd.InOrStdin()
-	scanner := bufio.NewScanner(bufio.NewReader(r))
-	for scanner.Scan() {
-		args = append(args, strings.Split(scanner.Text(), " ")...)
+	input, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return args, err
 	}
+	args = append(args, strings.Split(string(input), " ")...)
 
-	return args
+	return args, nil
 }
 
 func QueryFiles(args []string) ([]string, error) {

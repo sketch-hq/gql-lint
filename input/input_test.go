@@ -1,54 +1,48 @@
 package input
 
 import (
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/spf13/cobra"
 )
 
 func TestReadArgs(t *testing.T) {
 	is := is.New(t)
 
 	args := []string{"arg1", "arg2"}
-	got := ReadArgs(&cobra.Command{}, args)
+	got, err := ReadArgs(args)
+	is.NoErr(err)
+
 	is.Equal(got, args)
 }
 
-type MockCommand struct {
-	Return string
-}
-
-func (c *MockCommand) InOrStdin() io.Reader {
-	return strings.NewReader(c.Return)
-}
-
 func TestReadArgsPiped(t *testing.T) {
-	simulatePiping(func() {
+	simulatePiping("mocked", func() {
 		is := is.New(t)
 
-		cmd := &MockCommand{Return: "mocked"}
-
-		got := ReadArgs(cmd, []string{"arg1", "arg2"})
+		got, err := ReadArgs([]string{"arg1", "arg2"})
+		is.NoErr(err)
 
 		is.Equal(got, []string{"mocked"})
 	})
 }
 
-func simulatePiping(test func()) {
-	tmpfile, err := ioutil.TempFile("", "example")
+func simulatePiping(input string, test func()) {
+	tmpfile, err := ioutil.TempFile("", input)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer os.Remove(tmpfile.Name())
 
-	if _, err := tmpfile.Write([]byte("mocked_value")); err != nil {
+	if _, err := tmpfile.Write([]byte(input)); err != nil {
+		log.Fatal(err)
+	}
+	if _, err := tmpfile.Seek(0, 0); err != nil {
 		log.Fatal(err)
 	}
 

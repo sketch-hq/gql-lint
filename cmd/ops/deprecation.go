@@ -36,7 +36,10 @@ func validateDeprecationCmdArgs(args []string) error {
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
-	args = input.ReadArgs(cmd, args)
+	args, err := input.ReadArgs(args)
+	if err != nil {
+		return err
+	}
 
 	if err := validateDeprecationCmdArgs(args); err != nil {
 		return err

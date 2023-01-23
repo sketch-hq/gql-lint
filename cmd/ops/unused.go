@@ -31,7 +31,10 @@ func validateUnusedCmdArgs(args []string) error {
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
-	args = input.ReadArgs(cmd, args)
+	args, err := input.ReadArgs(args)
+	if err != nil {
+		return err
+	}
 
 	if err := validateUnusedCmdArgs(args); err != nil {
 		return err
