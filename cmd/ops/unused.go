@@ -10,11 +10,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var unusedCmd = &cobra.Command{
-	Use:   "unused [flags] queries",
-	Short: "Find unused deprecated fields",
-	RunE:  unusedCmdRun,
-}
+var (
+	//Command
+	unusedCmd = &cobra.Command{
+		Use:   "unused [flags] queries",
+		Short: "Find unused deprecated fields",
+		Long: `
+Find unused deprecated fields
+
+The "queries" argument is a file glob matching one or more graphql query or mutation files.`,
+		RunE: unusedCmdRun,
+	}
+)
 
 func init() {
 	Program.AddCommand(unusedCmd)

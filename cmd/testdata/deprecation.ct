@@ -2,7 +2,7 @@
 $ gql-lint deprecation --> FAIL
 Error: required flag(s) "schema" not set
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
@@ -15,7 +15,7 @@ Global Flags:
 $ gql-lint deprecation /tmp --> FAIL
 Error: required flag(s) "schema" not set
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
@@ -28,7 +28,7 @@ Global Flags:
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --> FAIL
 Error: you must specify at least one file with queries or mutations
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation

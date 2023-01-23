@@ -12,13 +12,12 @@ import (
 )
 
 var deprecationsCmd = &cobra.Command{
-	Use:   "deprecation [flags] queries_directory|queries_files_list",
-	Short: "Find deprecated fields in queries and mutations given a directory or a list of files",
+	Use:   "deprecation [flags] queries",
+	Short: "Find deprecated fields in queries and mutations given a list of files",
 	Long: `
-Find deprecated fields in queries and mutations given a directory or a list of files.
+Find deprecated fields in queries and mutations given a list of files
 
-The "queries_directory" argument is a directory containing all the queries and mutations. They can be in subdirectories. 
-The "queries_files_list" argument is a file containing a list of paths to queries and mutations. The file should contain one query or mutation per line.`,
+The "queries" argument is a file glob matching one or more graphql query or mutation files.`,
 	RunE: deprecationsCmdRun,
 }
 
