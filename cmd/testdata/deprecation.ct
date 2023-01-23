@@ -44,8 +44,8 @@ author.books.title is deprecated
   Reason: untitled books are better
 
 # fails with exit code 10 if it couldn't download the schema
-$ gql-lint deprecation --schema http://someinvalidhosthereblah/schema testdata/queries/author --> FAIL 10
-Error: failed to download schema: Post "http://someinvalidhosthereblah/schema": dial tcp: lookup someinvalidhosthereblah: no such host
+$ gql-lint deprecation --schema http://localhost:9999/schema_does_not_exists testdata/queries/author --> FAIL 10
+Error: failed to download schema: Post "http://localhost:9999/schema_does_not_exists": dial tcp [::1]:9999: connect: connection refused
 Usage:
   gql-lint deprecation [flags] queries_directory|queries_files_list
 
