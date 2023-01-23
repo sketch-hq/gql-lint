@@ -43,6 +43,19 @@ author.books.title is deprecated
   File:   testdata/queries/author/author.gql:7
   Reason: untitled books are better
 
+# fails with exit code 10 if it couldn't download the schema
+$ gql-lint deprecation --schema http://someinvalidhosthereblah/schema testdata/queries/author --> FAIL 10
+Error: failed to download schema: Post "http://someinvalidhosthereblah/schema": dial tcp: lookup someinvalidhosthereblah: no such host
+Usage:
+  gql-lint deprecation [flags] queries_directory|queries_files_list
+
+Flags:
+  -h, --help            help for deprecation
+      --schema string   Server's schema as file or url (required)
+
+Global Flags:
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+
 # outputs deprecations as json
 $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/author
 [{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]

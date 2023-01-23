@@ -12,8 +12,24 @@ import (
 	wunderintro "github.com/wundergraph/graphql-go-tools/pkg/introspection"
 )
 
+const DownloadFailed = 10
+const ParseSDLFailed = 20
+
 //go:embed introspection.gql
 var introspectionQuery string
+
+type Error struct {
+	Code int
+	Err  error
+}
+
+func (e *Error) Error() string {
+	return e.Err.Error()
+}
+
+func (e *Error) ReturnCode() int {
+	return e.Code
+}
 
 type jsonBody struct {
 	Data json.RawMessage `json:"data"`
@@ -24,11 +40,11 @@ type jsonBody struct {
 func Load(url string) ([]byte, error) {
 	jsonSchema, err := fetch(url)
 	if err != nil {
-		return []byte{}, err
+		return []byte{}, &Error{Err: err, Code: DownloadFailed}
 	}
 	schema, err := jsonToSDL(jsonSchema)
 	if err != nil {
-		return []byte{}, err
+		return []byte{}, &Error{Err: err, Code: ParseSDLFailed}
 	}
 
 	return schema, nil
