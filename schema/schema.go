@@ -15,7 +15,7 @@ const deprecated = `directive @deprecated(
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION`
 
 func Load(source string) (*ast.Schema, error) {
-	loader := schemaSources(source)
+	loader := loaderForSource(source)
 	sources, err := loader.Load(source)
 	if err != nil {
 		return nil, err
@@ -24,13 +24,13 @@ func Load(source string) (*ast.Schema, error) {
 	return parser.ParseSchema(sources...)
 }
 
-type SchemaSource interface {
+type Loader interface {
 	Load(source string) ([]*ast.Source, error)
 }
 
-type FileSchemaSource struct{}
+type FileLoader struct{}
 
-func (s FileSchemaSource) Load(source string) ([]*ast.Source, error) {
+func (s FileLoader) Load(source string) ([]*ast.Source, error) {
 	contents, err := os.ReadFile(source)
 	if err != nil {
 		return nil, err
@@ -42,9 +42,9 @@ func (s FileSchemaSource) Load(source string) ([]*ast.Source, error) {
 	}, nil
 }
 
-type HttpSchemaSource struct{}
+type HttpLoader struct{}
 
-func (s HttpSchemaSource) Load(source string) ([]*ast.Source, error) {
+func (s HttpLoader) Load(source string) ([]*ast.Source, error) {
 	contents, err := introspection.Load(source)
 	if err != nil {
 		return nil, err
@@ -62,9 +62,9 @@ func (s HttpSchemaSource) Load(source string) ([]*ast.Source, error) {
 	return sources, nil
 }
 
-func schemaSources(source string) SchemaSource {
+func loaderForSource(source string) Loader {
 	if strings.HasPrefix(source, "http://") || strings.HasPrefix(source, "https://") {
-		return HttpSchemaSource{}
+		return HttpLoader{}
 	}
-	return FileSchemaSource{}
+	return FileLoader{}
 }
