@@ -19,6 +19,8 @@ type jsonBody struct {
 	Data json.RawMessage `json:"data"`
 }
 
+// Load will fetch a schema at the given url and unwrap the response and
+// attempt to convert the schema from JSON to SDL.
 func Load(url string) ([]byte, error) {
 	jsonSchema, err := fetch(url)
 	if err != nil {
@@ -32,8 +34,6 @@ func Load(url string) ([]byte, error) {
 	return schema, nil
 }
 
-// Schema will fetch a schema at the given url and unwrap the response and
-// return the schema inside the `data` key in the response.
 func fetch(url string) ([]byte, error) {
 	q := map[string]string{
 		"query":         introspectionQuery,
