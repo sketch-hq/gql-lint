@@ -6,7 +6,7 @@ Usage:
 
 Flags:
   -h, --help            help for deprecation
-      --schema string   Server's schema file (required)
+      --schema string   Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -19,7 +19,7 @@ Usage:
 
 Flags:
   -h, --help            help for deprecation
-      --schema string   Server's schema file (required)
+      --schema string   Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -32,7 +32,7 @@ Usage:
 
 Flags:
   -h, --help            help for deprecation
-      --schema string   Server's schema file (required)
+      --schema string   Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -42,6 +42,19 @@ $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/
 author.books.title is deprecated
   File:   testdata/queries/author/author.gql:7
   Reason: untitled books are better
+
+# fails with exit code 10 if it couldn't download the schema
+$ gql-lint deprecation --schema http://localhost:9999/schema_does_not_exists testdata/queries/author --> FAIL 10
+Error: failed to download schema: Post "http://localhost:9999/schema_does_not_exists": dial tcp [::1]:9999: connect: connection refused
+Usage:
+  gql-lint deprecation [flags] queries_directory|queries_files_list
+
+Flags:
+  -h, --help            help for deprecation
+      --schema string   Server's schema as file or url (required)
+
+Global Flags:
+      --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # outputs deprecations as json
 $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/author

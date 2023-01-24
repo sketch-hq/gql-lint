@@ -37,6 +37,28 @@ func isDirectory(path string) (bool, error) {
 	return fileInfo.IsDir(), nil
 }
 
+func ParseSchemaFile(file string) (*ast.Schema, error) {
+	contents, err := os.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+	source := &ast.Source{Name: file, Input: string(contents)}
+	schema, schemaerr := gql.LoadSchema(source)
+	if schemaerr != nil {
+		return nil, schemaerr
+	}
+	return schema, nil
+}
+
+func ParseSchema(sources ...*ast.Source) (*ast.Schema, error) {
+	schema, schemaerr := gqlvalidator.LoadSchema(sources...)
+	if schemaerr != nil {
+		return nil, schemaerr
+	}
+
+	return schema, nil
+}
+
 func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
 	isDir, err := isDirectory(source)
 	if err != nil {
@@ -82,24 +104,6 @@ func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	}
 
 	return fields
-}
-
-func ParseSchemaFile(file string) (*ast.Schema, error) {
-	return parseSchemaFile(file)
-}
-
-func parseSchemaFile(file string) (*ast.Schema, error) {
-	contents, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-	source := &ast.Source{Name: file, Input: string(contents)}
-	schema, schemaerr := gql.LoadSchema(source)
-	if schemaerr != nil {
-		return nil, schemaerr
-	}
-
-	return schema, nil
 }
 
 func findQueryFiles(startDir string) []string {
