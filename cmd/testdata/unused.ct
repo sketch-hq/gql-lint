@@ -6,7 +6,7 @@ Usage:
 
 Flags:
   -h, --help            help for unused
-      --schema string   Server's schema file (required)
+      --schema string   Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -19,7 +19,7 @@ Usage:
 
 Flags:
   -h, --help            help for unused
-      --schema string   Server's schema file (required)
+      --schema string   Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -32,7 +32,7 @@ Usage:
 
 Flags:
   -h, --help            help for unused
-      --schema string   Server's schema file (required)
+      --schema string   Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")

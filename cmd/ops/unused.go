@@ -6,6 +6,7 @@ import (
 
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
+	"github.com/sketch-hq/gql-lint/schema"
 	"github.com/sketch-hq/gql-lint/unused"
 	"github.com/spf13/cobra"
 )
@@ -26,17 +27,22 @@ The "queries" argument is a file glob matching one or more graphql query or muta
 
 func init() {
 	Program.AddCommand(unusedCmd)
-	unusedCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema file (required)")
+	unusedCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
+	schema, err := schema.Load(flags.schemaFile)
+	if err != nil {
+		return err
+	}
+
 	queryFiles, err := input.QueryFiles(args)
 	if err != nil {
 		return err
 	}
 
-	unusedFields, err := unused.GetUnusedFields(flags.schemaFile, queryFiles)
+	unusedFields, err := unused.GetUnusedFields(schema, queryFiles)
 	if err != nil {
 		return err
 	}
