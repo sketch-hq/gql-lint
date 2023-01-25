@@ -15,11 +15,12 @@ jobs:
           - goarch: "386"
             goos: darwin
     steps:
-    - uses: actions/checkout@v3
-    - uses: wangyoucao577/go-release-action@v1.34
-      with:
-        project_path: "./cmd"
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        binary_name: "gql-lint"
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.34
+        with:
+          project_path: "./cmd"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          ldflags: "-s -w -X main.version=${{ github.ref_name }}"
+          binary_name: "gql-lint"
