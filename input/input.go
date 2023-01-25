@@ -2,7 +2,6 @@ package input
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,31 +9,6 @@ import (
 
 type command interface {
 	InOrStdin() io.Reader
-}
-
-func ReadArgs(args []string) ([]string, error) {
-	if !isInputFromPipe() {
-		return args, nil
-	}
-
-	return readPipedArgs()
-}
-
-func isInputFromPipe() bool {
-	fileInfo, _ := os.Stdin.Stat()
-	return fileInfo.Mode()&os.ModeCharDevice == 0
-}
-
-func readPipedArgs() ([]string, error) {
-	var args []string
-
-	input, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		return args, err
-	}
-	args = append(args, strings.Split(string(input), " ")...)
-
-	return args, nil
 }
 
 func QueryFiles(args []string) ([]string, error) {

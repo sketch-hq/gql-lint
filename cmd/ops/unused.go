@@ -19,6 +19,7 @@ var (
 Find unused deprecated fields
 
 The "queries" argument is a file glob matching one or more graphql query or mutation files.`,
+		Args: MinimumNArgs(1, "you must specify at least one file with queries or mutations"),
 		RunE: unusedCmdRun,
 	}
 )
@@ -29,24 +30,7 @@ func init() {
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
-func validateUnusedCmdArgs(args []string) error {
-	if len(args) == 0 {
-		return fmt.Errorf("you must specify at least one file with queries or mutations")
-	}
-
-	return nil
-}
-
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
-	args, err := input.ReadArgs(args)
-	if err != nil {
-		return err
-	}
-
-	if err := validateUnusedCmdArgs(args); err != nil {
-		return err
-	}
-
 	queryFiles, err := input.QueryFiles(args)
 	if err != nil {
 		return err

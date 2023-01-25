@@ -1,6 +1,6 @@
 # complains if no subcommand arguments are given
 $ gql-lint deprecation --> FAIL
-Error: required flag(s) "schema" not set
+Error: you must specify at least one file with queries or mutations
 Usage:
   gql-lint deprecation [flags] queries
 
@@ -47,7 +47,7 @@ author.books.title is deprecated
 $ gql-lint deprecation --schema http://localhost:9999/schema_does_not_exists testdata/queries/author --> FAIL 10
 Error: failed to download schema: Post "http://localhost:9999/schema_does_not_exists": dial tcp [::1]:9999: connect: connection refused
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
