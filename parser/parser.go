@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"bufio"
 	"fmt"
 	"io/fs"
 	"os"
@@ -59,33 +58,8 @@ func ParseSchema(sources ...*ast.Source) (*ast.Schema, error) {
 	return schema, nil
 }
 
-func ParseQuerySource(source string, schema *ast.Schema) (QueryFieldList, error) {
-	isDir, err := isDirectory(source)
-	if err != nil {
-		return nil, err
-	}
-
-	if isDir {
-		return parseQueryDir(source, schema)
-	} else {
-		return parseQueryList(source, schema)
-	}
-}
-
-func parseQueryDir(dir string, schema *ast.Schema) (QueryFieldList, error) {
-	files := findQueryFiles(dir)
-	if len(files) == 0 {
-		return QueryFieldList{}, fmt.Errorf("no query files found in %s", dir)
-	}
+func ParseQuerySource(files []string, schema *ast.Schema) (QueryFieldList, error) {
 	return queryTokensFromFiles(files, schema)
-}
-
-func parseQueryList(file string, schema *ast.Schema) (QueryFieldList, error) {
-	queryPaths, err := getLinesFromFile(file)
-	if err != nil {
-		return nil, err
-	}
-	return queryTokensFromFiles(queryPaths, schema)
 }
 
 func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
@@ -119,22 +93,6 @@ func findQueryFiles(startDir string) []string {
 		return nil
 	})
 	return files
-}
-
-func getLinesFromFile(file string) ([]string, error) {
-	var lines []string
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	return lines, scanner.Err()
 }
 
 func parseQueryFile(file string) (*ast.QueryDocument, error) {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
 	"github.com/sketch-hq/gql-lint/schema"
@@ -11,14 +12,13 @@ import (
 )
 
 var deprecationsCmd = &cobra.Command{
-	Use:   "deprecation [flags] queries_directory|queries_files_list",
-	Short: "Find deprecated fields in queries and mutations given a directory or a list of files",
+	Use:   "deprecation [flags] queries",
+	Short: "Find deprecated fields in queries and mutations given a list of files",
 	Long: `
-Find deprecated fields in queries and mutations given a directory or a list of files.
+Find deprecated fields in queries and mutations given a list of files
 
-The "queries_directory" argument is a directory containing all the queries and mutations. They can be in subdirectories. 
-The "queries_files_list" argument is a file containing a list of paths to queries and mutations. The file should contain one query or mutation per line.`,
-	Args: ExactArgs(1, "You must specify a directory for queries and mutations"),
+The "queries" argument is a file glob matching one or more graphql query or mutation files.`,
+	Args: ExactArgs(1, "you must specify at least one file with queries or mutations"),
 	RunE: deprecationsCmdRun,
 }
 
@@ -34,10 +34,14 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	queriesSource := args[0]
-	queryFields, err := parser.ParseQuerySource(queriesSource, schema)
+	queryFiles, err := input.QueryFiles(args)
 	if err != nil {
-		return fmt.Errorf("Unable to parse files in %s: %s", queriesSource, err)
+		return fmt.Errorf("Error: %s", err)
+	}
+
+	queryFields, err := parser.ParseQuerySource(queryFiles, schema)
+	if err != nil {
+		return fmt.Errorf("Unable to parse files: %s", err)
 	}
 
 	switch flags.outputFormat {

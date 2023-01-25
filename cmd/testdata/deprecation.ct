@@ -1,8 +1,8 @@
 # complains if no subcommand arguments are given
 $ gql-lint deprecation --> FAIL
-Error: You must specify a directory for queries and mutations
+Error: you must specify at least one file with queries or mutations
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
@@ -15,7 +15,7 @@ Global Flags:
 $ gql-lint deprecation /tmp --> FAIL
 Error: required flag(s) "schema" not set
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
@@ -26,9 +26,9 @@ Global Flags:
 
 # complains if a queries directory is not given
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --> FAIL
-Error: You must specify a directory for queries and mutations
+Error: you must specify at least one file with queries or mutations
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
@@ -38,7 +38,7 @@ Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # outputs deprecations to stdout if no `--output` is given
-$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries/author
+$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
 author.books.title is deprecated
   File:   testdata/queries/author/author.gql:7
   Reason: untitled books are better
@@ -47,7 +47,7 @@ author.books.title is deprecated
 $ gql-lint deprecation --schema http://localhost:9999/schema_does_not_exists testdata/queries/author --> FAIL 10
 Error: failed to download schema: Post "http://localhost:9999/schema_does_not_exists": dial tcp [::1]:9999: connect: connection refused
 Usage:
-  gql-lint deprecation [flags] queries_directory|queries_files_list
+  gql-lint deprecation [flags] queries
 
 Flags:
   -h, --help            help for deprecation
@@ -57,16 +57,9 @@ Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
 
 # outputs deprecations as json
-$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/author
+$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
 [{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]
 
 # outputs deprecations as xcode
-$ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql testdata/queries/author
+$ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
 testdata/queries/author/author.gql:7: warning: author.books.title is deprecated - Reason: untitled books are better
-
-# outputs deprecations given a queries list file
-$ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/query_list.txt
-author.books.title is deprecated
-  File:   testdata/queries/author/author.gql:7
-  Reason: untitled books are better
-

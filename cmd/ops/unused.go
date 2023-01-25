@@ -4,17 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/unused"
 	"github.com/spf13/cobra"
 )
 
-var unusedCmd = &cobra.Command{
-	Use:   "unused [flags] queries_directories",
-	Short: "Find unused deprecated fields",
-	Args:  MinimumNArgs(1, "you must specify at least one directory for queries and mutations"),
-	RunE:  unusedCmdRun,
-}
+var (
+	//Command
+	unusedCmd = &cobra.Command{
+		Use:   "unused [flags] queries",
+		Short: "Find unused deprecated fields",
+		Long: `
+Find unused deprecated fields
+
+The "queries" argument is a file glob matching one or more graphql query or mutation files.`,
+		Args: MinimumNArgs(1, "you must specify at least one file with queries or mutations"),
+		RunE: unusedCmdRun,
+	}
+)
 
 func init() {
 	Program.AddCommand(unusedCmd)
@@ -22,11 +30,15 @@ func init() {
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 }
 
-func unusedCmdRun(cmd *cobra.Command, queriesDirs []string) error {
-	unusedFields, err := unused.GetUnusedFields(flags.schemaFile, queriesDirs)
-
+func unusedCmdRun(cmd *cobra.Command, args []string) error {
+	queryFiles, err := input.QueryFiles(args)
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return err
+	}
+
+	unusedFields, err := unused.GetUnusedFields(flags.schemaFile, queryFiles)
+	if err != nil {
+		return err
 	}
 
 	switch flags.outputFormat {
