@@ -6,6 +6,8 @@ import (
 	"github.com/sketch-hq/gql-lint/cmd/ops"
 )
 
+var version string
+
 func main() {
 	os.Exit(run())
 }
@@ -16,6 +18,10 @@ type ReturnCoder interface {
 
 // run is a wrapper to allow using go-cmdtest to test the CLI inProcess
 func run() int {
+	if version == "" {
+		version = "dev"
+	}
+	ops.Program.Version = version
 	err := ops.Program.Execute()
 	if err != nil {
 		// Error is already printed by cobra

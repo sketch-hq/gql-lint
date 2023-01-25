@@ -14,6 +14,7 @@ Available Commands:
 Flags:
   -h, --help            help for gql-lint
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --version         version for gql-lint
 
 Use "gql-lint [command] --help" for more information about a command.
 
@@ -33,6 +34,7 @@ Available Commands:
 Flags:
   -h, --help            help for gql-lint
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --version         version for gql-lint
 
 Use "gql-lint [command] --help" for more information about a command.
 
@@ -52,5 +54,6 @@ Available Commands:
 Flags:
   -h, --help            help for gql-lint
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --version         version for gql-lint
 
 Use "gql-lint [command] --help" for more information about a command.
