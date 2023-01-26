@@ -146,6 +146,11 @@ func extractFields(set ast.SelectionSet, parentPath string, parentType string, f
 				path = f.Name
 			}
 
+			// This means the field doesn't belong to this schema
+			if f.Definition == nil {
+				continue
+			}
+
 			dep, depReason := isDeprecated(f.Definition.Directives)
 			if !dep {
 				fields = extractFields(f.SelectionSet, path, f.Definition.Type.Name(), fields)
