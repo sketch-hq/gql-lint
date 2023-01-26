@@ -39,7 +39,7 @@ type Character {
   id: ID
 
   # The name of the character.
-  name: String
+  name: String @deprecated(reason: "a character has no name")
 
   # The status of the character ('Alive', 'Dead' or 'unknown').
   status: String

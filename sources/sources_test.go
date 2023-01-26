@@ -1,4 +1,4 @@
-package schema_test
+package sources_test
 
 import (
 	"io"
@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/sketch-hq/gql-lint/schema"
+	"github.com/sketch-hq/gql-lint/sources"
 )
 
-func TestLoad(t *testing.T) {
+func TestLoadSchema(t *testing.T) {
 	t.Run("load schema from http with missing deprecated directive", func(t *testing.T) {
 		is := is.New(t)
 		server := httpServer(func(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +20,7 @@ func TestLoad(t *testing.T) {
 		})
 		defer server.Close()
 
-		_, err := schema.Load(server.URL)
+		_, err := sources.LoadSchema(server.URL)
 		is.NoErr(err)
 	})
 
@@ -32,14 +32,51 @@ func TestLoad(t *testing.T) {
 		})
 		defer server.Close()
 
-		_, err := schema.Load(server.URL)
+		_, err := sources.LoadSchema(server.URL)
 		is.NoErr(err)
+	})
+
+	t.Run("error if url returns not 200 OK", func(t *testing.T) {
+		is := is.New(t)
+		server := httpServer(func(w http.ResponseWriter, r *http.Request) {
+			http.NotFound(w, r)
+		})
+		defer server.Close()
+
+		_, err := sources.LoadSchema(server.URL)
+		is.True(err != nil)
 	})
 
 	t.Run("load schema from file", func(t *testing.T) {
 		is := is.New(t)
-		_, err := schema.Load("testdata/schema.gql")
+		_, err := sources.LoadSchema("testdata/schema.gql")
 		is.NoErr(err)
+	})
+}
+
+func TestLoadQueries(t *testing.T) {
+	run := func(t *testing.T, source string, expectError bool) {
+		is := is.New(t)
+		is.Helper()
+		schema, err := sources.LoadSchema("testdata/schema.gql")
+		is.NoErr(err)
+
+		fields, err := sources.LoadQueries(schema, []string{source})
+		if expectError {
+			is.True(err != nil)
+			is.True(fields == nil)
+		} else {
+			is.NoErr(err)
+			is.True(len(fields) > 0)
+		}
+	}
+
+	t.Run("from a file", func(t *testing.T) {
+		run(t, "testdata/query.gql", false)
+	})
+
+	t.Run("errors if file not found", func(t *testing.T) {
+		run(t, "testdata/file_not_found.gql", true)
 	})
 }
 

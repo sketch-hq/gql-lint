@@ -7,7 +7,7 @@ import (
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
-	"github.com/sketch-hq/gql-lint/schema"
+	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/spf13/cobra"
 )
 
@@ -29,7 +29,7 @@ func init() {
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
-	schema, err := schema.Load(flags.schemaFile)
+	schema, err := sources.LoadSchema(flags.schemaFile)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Error: %s", err)
 	}
 
-	queryFields, err := parser.ParseQuerySource(queryFiles, schema)
+	queryFields, err := sources.LoadQueries(schema, queryFiles)
 	if err != nil {
 		return fmt.Errorf("Unable to parse files: %s", err)
 	}

@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/sketch-hq/gql-lint/schema"
+	"github.com/sketch-hq/gql-lint/sources"
 )
 
 func TestGetUnusedFields(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := schema.Load("testdata/schemas/with_deprecations.gql")
+	schema, err := sources.LoadSchema("testdata/schemas/with_deprecations.gql")
 	is.NoErr(err)
 
 	unusedFields, err := GetUnusedFields(schema, []string{

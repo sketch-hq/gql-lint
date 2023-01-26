@@ -2,6 +2,7 @@ package unused
 
 import (
 	"github.com/sketch-hq/gql-lint/parser"
+	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -20,7 +21,7 @@ func GetUnusedFields(schema *ast.Schema, queriesPaths []string) ([]UnusedField, 
 
 	deprecatedFields := parser.ParseDeprecatedFields(schema)
 
-	queries, err := parser.ParseQuerySource(queriesPaths, schema)
+	queries, err := sources.LoadQueries(schema, queriesPaths)
 	if err != nil {
 		return []UnusedField{}, err
 	}

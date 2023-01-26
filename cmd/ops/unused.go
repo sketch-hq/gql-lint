@@ -6,7 +6,7 @@ import (
 
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
-	"github.com/sketch-hq/gql-lint/schema"
+	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/sketch-hq/gql-lint/unused"
 	"github.com/spf13/cobra"
 )
@@ -32,7 +32,7 @@ func init() {
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
-	schema, err := schema.Load(flags.schemaFile)
+	schema, err := sources.LoadSchema(flags.schemaFile)
 	if err != nil {
 		return err
 	}
