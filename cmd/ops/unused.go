@@ -30,7 +30,7 @@ func init() {
 	unusedCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 
-	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore (as file blob)")
+	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {

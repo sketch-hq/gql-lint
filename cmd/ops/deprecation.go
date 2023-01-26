@@ -27,7 +27,7 @@ func init() {
 	deprecationsCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 
-	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore (as file blob)")
+	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {

@@ -6,7 +6,7 @@ Usage:
 
 Flags:
   -h, --help                 help for deprecation
-      --ignore stringArray   Files to ignore (as file blob)
+      --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
 
 Global Flags:
@@ -20,7 +20,7 @@ Usage:
 
 Flags:
   -h, --help                 help for deprecation
-      --ignore stringArray   Files to ignore (as file blob)
+      --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
 
 Global Flags:
@@ -34,7 +34,7 @@ Usage:
 
 Flags:
   -h, --help                 help for deprecation
-      --ignore stringArray   Files to ignore (as file blob)
+      --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
 
 Global Flags:
@@ -54,7 +54,7 @@ Usage:
 
 Flags:
   -h, --help                 help for deprecation
-      --ignore stringArray   Files to ignore (as file blob)
+      --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
 
 Global Flags:
