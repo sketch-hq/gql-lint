@@ -103,7 +103,7 @@ func expand(pattern string) ([]string, error) {
 						return err
 					}
 
-					hits = append(hits, strings.Replace(path, `//`, `/`, -1))
+					hits = append(hits, filepath.Clean(path))
 
 					return nil
 				})
