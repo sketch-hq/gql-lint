@@ -18,7 +18,7 @@ var deprecationsCmd = &cobra.Command{
 Find deprecated fields in queries and mutations given a list of files
 
 The "queries" argument is a file glob matching one or more graphql query or mutation files.`,
-	Args: ExactArgs(1, "you must specify at least one file with queries or mutations"),
+	Args: MinimumNArgs(1, "you must specify at least one file with queries or mutations"),
 	RunE: deprecationsCmdRun,
 }
 
@@ -26,6 +26,8 @@ func init() {
 	Program.AddCommand(deprecationsCmd)
 	deprecationsCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
+
+	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
@@ -34,7 +36,7 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	queryFiles, err := input.QueryFiles(args)
+	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}

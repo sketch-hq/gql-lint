@@ -5,8 +5,9 @@ Usage:
   gql-lint unused [flags] queries
 
 Flags:
-  -h, --help            help for unused
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for unused
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -18,8 +19,9 @@ Usage:
   gql-lint unused [flags] queries
 
 Flags:
-  -h, --help            help for unused
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for unused
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -31,8 +33,9 @@ Usage:
   gql-lint unused [flags] queries
 
 Flags:
-  -h, --help            help for unused
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for unused
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -44,6 +47,10 @@ $ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queri
 # outputs deprecations as json
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 [{"field":"Book.title"}]
+
+# ignores a given file blob
+$ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql --ignore testdata/queries/unused/without_title/*.gql testdata/queries/unused/**/*.gql
+[]
 
 # outputs success message if no unused fields are found
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/with_title/with_title.gql testdata/queries/unused/without_title/without_title.gql

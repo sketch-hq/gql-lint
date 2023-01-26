@@ -11,8 +11,17 @@ type command interface {
 	InOrStdin() io.Reader
 }
 
-func QueryFiles(args []string) ([]string, error) {
+func ExpandGlobs(args []string, ignore []string) ([]string, error) {
 	var files []string
+
+	if len(ignore) > 0 {
+		var err error
+		ignore, err = ExpandGlobs(ignore, []string{})
+		if err != nil {
+			return files, err
+		}
+	}
+
 	for _, source := range args {
 		if strings.Contains(source, "*") {
 			matches, err := glob(source)
@@ -20,13 +29,35 @@ func QueryFiles(args []string) ([]string, error) {
 				return files, err
 			}
 
-			files = append(files, matches...)
-		} else {
+			files = append(files, filter(matches, ignore)...)
+		} else if !contains(ignore, source) {
 			files = append(files, source)
 		}
 	}
 
 	return unique(files), nil
+}
+
+func filter(in []string, ignore []string) []string {
+	var out []string
+
+	for _, s := range in {
+		if !contains(ignore, s) {
+			out = append(out, s)
+		}
+	}
+
+	return out
+}
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
 
 func unique(input []string) []string {
@@ -72,7 +103,7 @@ func expand(pattern string) ([]string, error) {
 						return err
 					}
 
-					hits = append(hits, path)
+					hits = append(hits, filepath.Clean(path))
 
 					return nil
 				})

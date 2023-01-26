@@ -5,8 +5,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help            help for deprecation
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -18,8 +19,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help            help for deprecation
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -31,8 +33,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help            help for deprecation
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -50,8 +53,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help            help for deprecation
-      --schema string   Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore
+      --schema string        Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -60,6 +64,10 @@ Global Flags:
 $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
 [{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]
 
+# ignores a given file glob
+$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql --ignore testdata/queries/author/author_id.gql testdata/queries/author/*.gql
+[{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]
+
 # outputs deprecations as xcode
-$ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
+$ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql  testdata/queries/author/*.gql
 testdata/queries/author/author.gql:7: warning: author.books.title is deprecated - Reason: untitled books are better
