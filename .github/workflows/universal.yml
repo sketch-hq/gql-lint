@@ -1,0 +1,44 @@
+name: Build and upload universal binary
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Release version (same format as github.ref_name)"
+        required: true
+
+jobs:
+  lipo:
+    name: Universal Mac binary
+    runs-on: macos-12
+    needs: releases-matrix
+    steps:
+      - name: Test used variables
+        run: |
+          echo ${{ github.repository }}
+          echo ${{ github.events.inputs.release }}
+      - name: Download release assets
+        uses: dsaltares/fetch-gh-release-asset@1.1.0
+        with:
+          repo: ${{ github.repository }}
+          version: "tags/${{ github.events.inputs.release }}"
+          regex: true
+          file: "gql-lint-${{ github.events.inputs.release }}-darwin-.*\\.tar.gz"
+      - name: Untar release assets
+        run: |
+          mkdir -p intel arm
+          tar -xzf gql-lint-${{ github.events.inputs.release }}-darwin-arm64.tar.gz -C arm
+          tar -xzf gql-lint-${{ github.events.inputs.release }}-darwin-amd64.tar.gz -C intel
+      - name: Create universal binary
+        run: lipo -create -output gql-lint ./intel/gql-lint ./amd/gql-lint
+      - name: Tar binary
+        run: tar -czf gql-lint-${{ github.events.inputs.release }}-darwin-universal.tar.gz gql-lint
+      - name: Upload universal binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./gql-lint-${{ github.events.inputs.release }}-darwin-universal.tar.gz
+          asset_name: gql-lint-${{ github.events.inputs.release }}-darwin-universal.tar.gz
+          asset_content_type: application/x-tar
