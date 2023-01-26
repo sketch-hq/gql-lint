@@ -10,9 +10,10 @@ func TestQueryFiles(t *testing.T) {
 	is := is.New(t)
 
 	tests := []struct {
-		name string
-		args []string
-		want []string
+		name   string
+		args   []string
+		ignore []string
+		want   []string
 	}{
 		{
 			name: "expands directories",
@@ -34,10 +35,17 @@ func TestQueryFiles(t *testing.T) {
 			args: []string{"testdata/**/*.gql"},
 			want: []string{"testdata/one.gql", "testdata/two.gql", "testdata/nested/one.gql", "testdata/nested/two.gql"},
 		},
+		{
+			name:   "expands nested directories",
+			args:   []string{"testdata/**/*.gql"},
+			ignore: []string{"testdata/**/one.gql"},
+			want:   []string{"testdata/two.gql", "testdata/nested/two.gql"},
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := QueryFiles(tt.args)
+			got, err := ExpandGlobs(tt.args, tt.ignore)
 			is.NoErr(err)
 
 			is.Equal(got, tt.want)

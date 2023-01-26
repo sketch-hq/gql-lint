@@ -7,11 +7,13 @@ const (
 	jsonFormat           = "json"
 	stdoutFormat         = "stdout"
 	xcodeFormat          = "xcode"
+	ignoreFlagName       = "ignore"
 )
 
 var flags = struct {
 	outputFormat string
 	schemaFile   string
+	ignore       []string
 }{}
 
 func setFlagsToDefault() {

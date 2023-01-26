@@ -29,6 +29,8 @@ func init() {
 	Program.AddCommand(unusedCmd)
 	unusedCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
+
+	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore (as file blob)")
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
@@ -37,7 +39,7 @@ func unusedCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	queryFiles, err := input.QueryFiles(args)
+	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
 	if err != nil {
 		return err
 	}
