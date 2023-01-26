@@ -2,6 +2,7 @@ package input
 
 import (
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,7 @@ func ExpandGlobs(args []string, ignore []string) ([]string, error) {
 	if len(ignore) > 0 {
 		var err error
 		ignore, err = ExpandGlobs(ignore, []string{})
+		log.Printf("ignore %d: %+v", len(ignore), ignore)
 		if err != nil {
 			return files, err
 		}
@@ -51,12 +53,15 @@ func filter(in []string, ignore []string) []string {
 }
 
 func contains(s []string, str string) bool {
+	log.Println()
 	for _, v := range s {
-		if v == str {
+		if filepath.Clean(v) == filepath.Clean(str) {
+			log.Printf("\ncontains - %+v - %s", true, str)
 			return true
 		}
 	}
 
+	log.Printf("\ncontains - %+v - %s", false, str)
 	return false
 }
 
