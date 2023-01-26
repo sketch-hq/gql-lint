@@ -2,6 +2,7 @@ package unused
 
 import (
 	"github.com/sketch-hq/gql-lint/parser"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 type UnusedField struct {
@@ -14,13 +15,8 @@ func (r unusedRegistry) Record(field parser.SchemaField) {
 	r[field.Name] = UnusedField{Name: field.Name}
 }
 
-func GetUnusedFields(schemaPath string, queriesPaths []string) ([]UnusedField, error) {
+func GetUnusedFields(schema *ast.Schema, queriesPaths []string) ([]UnusedField, error) {
 	unusedFields := make(unusedRegistry)
-
-	schema, err := parser.ParseSchemaFile(schemaPath)
-	if err != nil {
-		return []UnusedField{}, err
-	}
 
 	deprecatedFields := parser.ParseDeprecatedFields(schema)
 
