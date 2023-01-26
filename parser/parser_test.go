@@ -1,16 +1,22 @@
-package parser
+package parser_test
 
 import (
-	"strings"
+	"os"
 	"testing"
 
 	"github.com/matryer/is"
+	"github.com/sketch-hq/gql-lint/parser"
+	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vektah/gqlparser/v2/validator"
 )
 
-func TestParseSchemaFile(t *testing.T) {
+func TestParseSchema(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
+	schema, err := parser.ParseSchema(
+		source(t, "testdata/schemas/with_deprecations.gql"),
+		validator.Prelude,
+	)
 
 	is.NoErr(err)
 
@@ -42,55 +48,77 @@ func TestParseSchemaFile(t *testing.T) {
 	is.True(!deprecated)
 }
 
-func TestParseSchemaFile_NotFound(t *testing.T) {
-	is := is.New(t)
+func TestParseQueries(t *testing.T) {
+	t.Run("returns empty list if queries are not for the given schema", func(t *testing.T) {
+		is := is.New(t)
 
-	_, err := ParseSchemaFile("testdata/schemas/not_found.gql")
+		schema, err := parser.ParseSchema(
+			source(t, "testdata/schemas/with_deprecations.gql"),
+			validator.Prelude,
+		)
+		is.NoErr(err)
 
-	is.True(strings.Contains(err.Error(), "open testdata/schemas/not_found.gql: no such file or directory"))
-}
+		fields, err := parser.ParseQueries(
+			schema,
+			source(t, "testdata/queries/for_other_schema.gql")
+		)
+		is.NoErr(err)
 
-func TestParseQuerySource(t *testing.T) {
-	is := is.New(t)
+		is.Equal(len(fields), 0)
+	})
 
-	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
-	is.NoErr(err)
+	t.Run("successfully parses queries", func(t *testing.T) {
+		is := is.New(t)
 
-	fields, err := ParseQuerySource([]string{"testdata/queries/deprecation.gql", "testdata/queries/one.gql"}, schema)
-	is.NoErr(err)
+		schema, err := parser.ParseSchema(
+			source(t, "testdata/schemas/with_deprecations.gql"),
+			validator.Prelude,
+		)
+		is.NoErr(err)
 
-	is.Equal(len(fields), 1)
+		fields, err := parser.ParseQueries(
+			schema,
+			source(t, "testdata/queries/deprecation.gql"),
+			source(t, "testdata/queries/one.gql"),
+		)
+		is.NoErr(err)
 
-	field := fields[0]
-	is.Equal(field.Path, "author.books.title")
-	is.Equal(field.SchemaPath, "Book.title")
-	is.True(field.IsDeprecated)
-	is.Equal(field.File, "testdata/queries/deprecation.gql")
-	is.Equal(field.Line, 7)
-}
+		is.Equal(len(fields), 1)
 
-func TestParseQuerySourceDirUnknownFields(t *testing.T) {
-	is := is.New(t)
-
-	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
-	is.NoErr(err)
-
-	fields, err := ParseQuerySource([]string{"testdata/queries/for_other_schema.gql"}, schema)
-	is.NoErr(err)
-
-	is.Equal(len(fields), 0)
+		field := fields[0]
+		is.Equal(field.Path, "author.books.title")
+		is.Equal(field.SchemaPath, "Book.title")
+		is.True(field.IsDeprecated)
+		is.Equal(field.File, "testdata/queries/deprecation.gql")
+		is.Equal(field.Line, 7)
+	})
 }
 
 func TestParseDeprecatedFields(t *testing.T) {
 	is := is.New(t)
 
-	schema, err := ParseSchemaFile("testdata/schemas/with_deprecations.gql")
+	schema, err := parser.ParseSchema(
+		source(t, "testdata/schemas/with_deprecations.gql"),
+		validator.Prelude,
+	)
 	is.NoErr(err)
 
-	fields := ParseDeprecatedFields(schema)
+	fields := parser.ParseDeprecatedFields(schema)
 
 	is.Equal(len(fields), 1)
 
 	field := fields[0]
 	is.Equal(field.Name, "Book.title")
+}
+
+func source(t *testing.T, file string) *ast.Source {
+	t.Helper()
+
+	contents, err := os.ReadFile(file)
+	if err != nil {
+		t.Logf("Could not read test fixture file: %s", file)
+		t.FailNow()
+	}
+
+	return &ast.Source{Name: file, Input: string(contents)}
 }

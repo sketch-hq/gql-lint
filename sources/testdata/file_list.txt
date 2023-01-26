@@ -1,0 +1,2 @@
+testdata/query.gql
+testdata/queries/subfolder/one.gql
