@@ -60,7 +60,7 @@ func TestParseQueries(t *testing.T) {
 
 		fields, err := parser.ParseQueries(
 			schema,
-			source(t, "testdata/queries/for_other_schema.gql")
+			source(t, "testdata/queries/for_other_schema.gql"),
 		)
 		is.NoErr(err)
 

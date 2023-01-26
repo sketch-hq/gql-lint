@@ -1,6 +1,0 @@
-query {
-  character(id: 123) {
-    id
-    name
-  }
-}

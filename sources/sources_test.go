@@ -78,10 +78,6 @@ func TestLoadQueries(t *testing.T) {
 	t.Run("errors if file not found", func(t *testing.T) {
 		run(t, "testdata/file_not_found.gql", true)
 	})
-
-	t.Run("from a directory", func(t *testing.T) {
-		run(t, "testdata/queries", false)
-	})
 }
 
 func httpServer(handler http.HandlerFunc) *httptest.Server {

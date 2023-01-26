@@ -1,6 +1,0 @@
-query {
-  location(id: 456) {
-    id
-    name
-  }
-}

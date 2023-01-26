@@ -1,9 +1,7 @@
 package sources
 
 import (
-	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/sketch-hq/gql-lint/introspection"
@@ -30,7 +28,7 @@ func LoadSchema(source string) (*ast.Schema, error) {
 	return parser.ParseSchema(sources...)
 }
 
-// LoadQueries will load one or more queries from either a file or a directory
+// LoadQueries will graphql queries from a list of files
 func LoadQueries(schema *ast.Schema, sources []string) (parser.QueryFieldList, error) {
 	allSources := []*ast.Source{}
 	for _, source := range sources {
@@ -75,31 +73,6 @@ func (s fileLoader) Load(source string) ([]*ast.Source, error) {
 
 }
 
-type directoryLoader struct{}
-
-func (l directoryLoader) Load(source string) ([]*ast.Source, error) {
-	var sources []*ast.Source
-
-	filepath.WalkDir(source, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-
-		contents, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-
-		sources = append(sources, &ast.Source{Name: path, Input: string(contents)})
-		return nil
-	})
-
-	return sources, nil
-}
-
 type httpLoader struct{}
 
 func (s httpLoader) Load(source string) ([]*ast.Source, error) {
@@ -125,22 +98,5 @@ func loaderForSource(source string, prelude bool) (Loader, error) {
 		return httpLoader{}, nil
 	}
 
-	isDir, err := isDirectory(source)
-	if err != nil {
-		return nil, err
-	}
-	if isDir {
-		return directoryLoader{}, nil
-	}
-
 	return fileLoader{IncludePrelude: prelude}, nil
-}
-
-func isDirectory(path string) (bool, error) {
-	fileInfo, err := os.Stat(path)
-	if err != nil {
-		return false, err
-	}
-
-	return fileInfo.IsDir(), nil
 }
