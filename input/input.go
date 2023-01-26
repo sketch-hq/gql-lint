@@ -52,7 +52,7 @@ func filter(in []string, ignore []string) []string {
 
 func contains(s []string, str string) bool {
 	for _, v := range s {
-		if v == str {
+		if filepath.Clean(v) == filepath.Clean(str) {
 			return true
 		}
 	}

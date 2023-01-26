@@ -41,6 +41,12 @@ func TestQueryFiles(t *testing.T) {
 			ignore: []string{"testdata/**/one.gql"},
 			want:   []string{"testdata/two.gql", "testdata/nested/two.gql"},
 		},
+		{
+			name:   "expands nested directories",
+			args:   []string{"testdata/**/*.gql"},
+			ignore: []string{"./testdata/**/one.gql"},
+			want:   []string{"testdata/two.gql", "testdata/nested/two.gql"},
+		},
 	}
 
 	for _, tt := range tests {
