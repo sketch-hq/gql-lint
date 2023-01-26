@@ -64,7 +64,7 @@ func fetch(url string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to download schema: %w", err)
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("got invalid http status code: %s", resp.Status)
+		return nil, fmt.Errorf("introspection query failed, got http status code: %s", resp.Status)
 	}
 	defer resp.Body.Close()
 
