@@ -26,3 +26,68 @@ jobs:
           goarch: ${{ matrix.goarch }}
           ldflags: "-s -w -X main.version=${{ github.ref_name }}"
           binary_name: "gql-lint"
+
+  lipo:
+    name: Universal Mac binary
+    runs-on: macos-12
+    needs: releases-matrix
+    env:
+      ARM_FILE: "gql-lint-${{ github.ref_name }}-darwin-arm64.tar.gz"
+      INTEL_FILE: "gql-lint-${{ github.ref_name }}-darwin-amd64.tar.gz"
+      UNIVERSAL_FILE: "gql-lint-${{ github.ref_name }}-darwin-universal.tar.gz"
+    steps:
+      - name: Print used variables
+        run: |
+          echo "Repo: ${{ github.repository }}"
+          echo "Release: ${{ github.ref_name }}"
+
+      - name: Download release amd64 asset
+        uses: dsaltares/fetch-gh-release-asset@1.1.0
+        with:
+          repo: ${{ github.repository }}
+          version: "tags/${{ github.ref_name }}"
+          file: ${{ env.INTEL_FILE }}
+
+      - name: Download release arm64 asset
+        uses: dsaltares/fetch-gh-release-asset@1.1.0
+        with:
+          repo: ${{ github.repository }}
+          version: "tags/${{ github.ref_name }}"
+          file: ${{ env.ARM_FILE }}
+
+      - name: Create universal binary asset
+        run: |
+          mkdir -p intel arm
+          tar -xzf "$ARM_FILE" -C arm
+          tar -xzf "$INTEL_FILE" -C intel
+          lipo -create -output gql-lint ./intel/gql-lint ./arm/gql-lint
+          tar -czf "$UNIVERSAL_FILE" gql-lint
+          md5 -q "$UNIVERSAL_FILE" > "$UNIVERSAL_FILE.md5"
+
+      - name: Get release info
+        id: get_release
+        uses: joutvhu/get-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+
+      - name: Upload universal binary asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: "./${{ env.UNIVERSAL_FILE }}"
+          asset_name: "${{ env.UNIVERSAL_FILE }}"
+          asset_content_type: application/x-tar
+
+      - name: Upload md5 for universal binary asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: "./${{ env.UNIVERSAL_FILE }}.md5"
+          asset_name: "${{ env.UNIVERSAL_FILE }}.md5"
+          asset_content_type: application/text
