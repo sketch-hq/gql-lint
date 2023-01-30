@@ -100,8 +100,11 @@ func extractFields(set ast.SelectionSet, parentPath string, parentType string, f
 			}
 
 			parent := parentType
-			if parentType == "" {
+			if parent == "" {
 				parent = parentPath
+			}
+			if parent == "" {
+				parent = f.ObjectDefinition.Name
 			}
 
 			field := QueryField{

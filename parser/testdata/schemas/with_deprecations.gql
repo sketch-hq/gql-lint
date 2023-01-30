@@ -15,5 +15,5 @@ type Query {
 }
 
 type Mutation {
-  updateBook(title: String!): Book
+  updateBook(title: String!): Book @deprecated(reason: "deprecated mutation")
 }
