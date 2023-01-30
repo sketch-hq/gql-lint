@@ -13,3 +13,7 @@ type Author {
 type Query {
   author(id: Int!): Author
 }
+
+type Mutation {
+  updateBook(title: String!): Book
+}

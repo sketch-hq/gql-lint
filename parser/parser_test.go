@@ -92,6 +92,27 @@ func TestParseQueries(t *testing.T) {
 		is.Equal(field.File, "testdata/queries/deprecation.gql")
 		is.Equal(field.Line, 7)
 	})
+
+	t.Run("set's correct SchemaPath for fields in a fragment", func(t *testing.T) {
+		is := is.New(t)
+
+		schema, err := parser.ParseSchema(
+			source(t, "testdata/schemas/with_deprecations.gql"),
+			validator.Prelude,
+		)
+		is.NoErr(err)
+
+		fields, err := parser.ParseQueries(
+			schema,
+			source(t, "testdata/queries/fragment.gql"),
+		)
+		is.NoErr(err)
+
+		is.Equal(len(fields), 1)
+
+		field := fields[0]
+		is.Equal(field.SchemaPath, "Book.title")
+	})
 }
 
 func TestParseDeprecatedFields(t *testing.T) {
