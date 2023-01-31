@@ -1,6 +1,8 @@
 package unused
 
 import (
+	"sort"
+
 	"github.com/sketch-hq/gql-lint/parser"
 	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -9,6 +11,12 @@ import (
 type UnusedField struct {
 	Name string
 }
+
+type byName []UnusedField
+
+func (a byName) Len() int           { return len(a) }
+func (a byName) Less(i, j int) bool { return a[i].Name < a[j].Name }
+func (a byName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
 type unusedRegistry map[string]UnusedField
 
@@ -41,6 +49,8 @@ func GetUnusedFields(schema *ast.Schema, queriesPaths []string) ([]UnusedField, 
 	for _, field := range unusedFields {
 		result = append(result, field)
 	}
+
+	sort.Sort(byName(result))
 
 	return result, nil
 }
