@@ -53,6 +53,9 @@ func unusedCmdRun(cmd *cobra.Command, args []string) error {
 	case stdoutFormat:
 		unusedStdOut(unusedFields)
 
+	case markdownFormat:
+		unusedMarkdownOut(unusedFields)
+
 	case jsonFormat:
 		err = unusedJSONOut(unusedFields)
 		if err != nil {
@@ -60,7 +63,7 @@ func unusedCmdRun(cmd *cobra.Command, args []string) error {
 		}
 
 	default:
-		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", flags.outputFormat)
+		return fmt.Errorf("%s is not a valid output format. Choose between json, markdown and stdout", flags.outputFormat)
 	}
 
 	return nil
@@ -91,4 +94,16 @@ func unusedJSONOut(fields []unused.UnusedField) error {
 
 	fmt.Print(string(bytes))
 	return nil
+}
+
+func unusedMarkdownOut(fields []unused.UnusedField) {
+	if len(fields) == 0 {
+		fmt.Println("Nothing can be removed right now")
+		return
+	}
+
+	for _, q := range fields {
+		fmt.Printf("- %s", q.Name)
+		fmt.Println()
+	}
 }

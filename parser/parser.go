@@ -52,6 +52,10 @@ func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 	var fields []SchemaField
 
 	for name, definition := range schema.Types {
+		if name == "__Directive" {
+			continue
+		}
+
 		if ok, _ := isDeprecated(definition.Directives); ok {
 			fields = append(fields, SchemaField{Name: name})
 		}

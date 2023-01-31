@@ -6,6 +6,7 @@ const (
 	outputFormatFlagName = "output"
 	jsonFormat           = "json"
 	stdoutFormat         = "stdout"
+	markdownFormat       = "markdown"
 	xcodeFormat          = "xcode"
 	ignoreFlagName       = "ignore"
 )

@@ -59,3 +59,7 @@ Nothing can be removed right now
 # outputs empty json if no unused fields are found
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/with_title/with_title.gql testdata/queries/unused/without_title/without_title.gql
 []
+
+# outputs for slack
+$ gql-lint unused --output markdown --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
+- Book.title
