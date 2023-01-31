@@ -99,9 +99,17 @@ func extractFields(set ast.SelectionSet, parentPath string, parentType string, f
 				continue
 			}
 
+			parent := parentType
+			if parent == "" {
+				parent = parentPath
+			}
+			if parent == "" {
+				parent = f.ObjectDefinition.Name
+			}
+
 			field := QueryField{
 				Path:              path,
-				SchemaPath:        fmt.Sprintf("%s.%s", parentType, f.Name),
+				SchemaPath:        fmt.Sprintf("%s.%s", parent, f.Name),
 				File:              f.Position.Src.Name,
 				Line:              f.Position.Line,
 				IsDeprecated:      dep,

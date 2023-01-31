@@ -1,6 +1,7 @@
 package parser_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -92,6 +93,30 @@ func TestParseQueries(t *testing.T) {
 		is.Equal(field.File, "testdata/queries/deprecation.gql")
 		is.Equal(field.Line, 7)
 	})
+
+	t.Run("set's correct SchemaPath for fields in a fragment", func(t *testing.T) {
+		is := is.New(t)
+
+		schema, err := parser.ParseSchema(
+			source(t, "testdata/schemas/with_deprecations.gql"),
+			validator.Prelude,
+		)
+		is.NoErr(err)
+
+		fields, err := parser.ParseQueries(
+			schema,
+			source(t, "testdata/queries/fragment.gql"),
+		)
+		is.NoErr(err)
+
+		is.Equal(len(fields), 2)
+
+		field := fields[0]
+		is.Equal(field.SchemaPath, "Mutation.updateBook")
+
+		field = fields[1]
+		is.Equal(field.SchemaPath, "Book.title")
+	})
 }
 
 func TestParseDeprecatedFields(t *testing.T) {
@@ -105,10 +130,25 @@ func TestParseDeprecatedFields(t *testing.T) {
 
 	fields := parser.ParseDeprecatedFields(schema)
 
-	is.Equal(len(fields), 1)
+	is.Equal(len(fields), 2)
 
-	field := fields[0]
+	field, err := findField(fields, "Mutation.updateBook")
+	is.NoErr(err)
+	is.Equal(field.Name, "Mutation.updateBook")
+
+	field, err = findField(fields, "Book.title")
+	is.NoErr(err)
 	is.Equal(field.Name, "Book.title")
+}
+
+func findField(fields []parser.SchemaField, name string) (parser.SchemaField, error) {
+	for _, field := range fields {
+		if field.Name == name {
+			return field, nil
+		}
+	}
+
+	return parser.SchemaField{}, fmt.Errorf("field not found")
 }
 
 func source(t *testing.T, file string) *ast.Source {

@@ -1,0 +1,9 @@
+fragment BookTitle on Book {
+  title
+}
+
+mutation updateBook {
+  updateBook(title: "new title") {
+    ...BookTitle
+  }
+}
