@@ -69,7 +69,7 @@ func diffXcodeOut(out output.Data) {
 	for _, f := range out {
 		fmt.Printf("%s:%d: warning: ", f.File, f.Line)
 		fmt.Printf("%s is deprecated ", f.Field)
-		fmt.Printf("- Reason: %s\n", f.DeprecationReason)
+		fmt.Printf("- Reason: %s", f.DeprecationReason)
 		fmt.Println()
 	}
 }

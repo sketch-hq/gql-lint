@@ -98,7 +98,7 @@ func deprecationXcodeOut(queryFields parser.QueryFieldList) {
 	for _, q := range queryFields {
 		fmt.Printf("%s:%d: warning: ", q.File, q.Line)
 		fmt.Printf("%s is deprecated ", q.Path)
-		fmt.Printf("- Reason: %s\n", q.DeprecationReason)
+		fmt.Printf("- Reason: %s", q.DeprecationReason)
 		fmt.Println()
 	}
 }
