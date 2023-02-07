@@ -1,8 +1,16 @@
-[
-    {
-        "field": "Article.isPublic",
-        "file": "somefile.graphql",
-        "line": 7,
-        "reason": "Please migrate to publicAccessLevel"
-    },
-]
+{
+    "b.json": [
+        {
+            "field": "Article.isPublic",
+            "file": "somefile.graphql",
+            "line": 7,
+            "reason": "Please migrate to publicAccessLevel"
+        },
+        {
+            "field": "Article.view",
+            "file": "somefile.graphql",
+            "line": 13,
+            "reason": "Please migrate to Article.permissions"
+        },
+    ]
+}

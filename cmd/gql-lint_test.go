@@ -10,8 +10,9 @@ import (
 	"github.com/google/go-cmdtest"
 )
 
-// set this to true if you want to update the test cases in `testdata/`
-var update = flag.Bool("update", false, "update test files with results")
+// Run tests with `UPDATE_CMD_TESTS=true make test` to re-generate the cmd test files
+var updateEnv = os.Getenv("UPDATE_CMD_TESTS")
+var update = flag.Bool("update", updateEnv == "true", "update test files with results")
 
 func TestCLI(t *testing.T) {
 	ts, err := cmdtest.Read("testdata")
