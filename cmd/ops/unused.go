@@ -31,17 +31,29 @@ func init() {
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 
 	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
+	unusedCmd.Flags().BoolVarP(&flags.verbose, verboseFlagName, "v", false, "Verbose mode. Will print debug messages")
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
+	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
+	if err != nil {
+		return err
+	}
+
+	if flags.verbose {
+		fmt.Println("debug: Processing the following query files:")
+		for _, file := range queryFiles {
+			fmt.Println("  -", file)
+		}
+	}
+
 	schema, err := sources.LoadSchema(flags.schemaFile)
 	if err != nil {
 		return err
 	}
 
-	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
-	if err != nil {
-		return err
+	if flags.verbose {
+		fmt.Println("debug: Succesfully loaded schema from", flags.schemaFile)
 	}
 
 	unusedFields, err := unused.GetUnusedFields(schema, queryFiles)
@@ -77,7 +89,6 @@ func unusedStdOut(fields []unused.UnusedField) {
 
 	for _, q := range fields {
 		fmt.Printf("`%s` is unused and can be removed\n", q.Name)
-		fmt.Println()
 	}
 }
 

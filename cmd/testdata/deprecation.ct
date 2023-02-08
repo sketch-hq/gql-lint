@@ -8,6 +8,7 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -22,6 +23,7 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -36,6 +38,7 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -57,6 +60,7 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -79,3 +83,25 @@ $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations
 # outputs deprecations as xcode
 $ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecations.gql  testdata/queries/author/*.gql
 testdata/queries/author/author.gql:7: warning: author.books.title is deprecated - Reason: untitled books are better
+
+# outputs debug info if --verbose is used
+$ gql-lint deprecation --verbose --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
+debug: Processing the following query files:
+  - testdata/queries/author/author.gql
+  - testdata/queries/author/author_id.gql
+debug: Succesfully loaded schema from testdata/schemas/with_deprecations.gql
+Schema: testdata/schemas/with_deprecations.gql
+  author.books.title is deprecated
+    File:   testdata/queries/author/author.gql:7
+    Reason: untitled books are better
+
+# outputs debug info if -v is used
+$ gql-lint deprecation --verbose --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
+debug: Processing the following query files:
+  - testdata/queries/author/author.gql
+  - testdata/queries/author/author_id.gql
+debug: Succesfully loaded schema from testdata/schemas/with_deprecations.gql
+Schema: testdata/schemas/with_deprecations.gql
+  author.books.title is deprecated
+    File:   testdata/queries/author/author.gql:7
+    Reason: untitled books are better
