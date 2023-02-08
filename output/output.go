@@ -13,7 +13,53 @@ type Field struct {
 	DeprecationReason string `json:"reason"`
 }
 
-type Data []Field
+func (f *Field) Equals(b *Field) bool {
+	return f.Field == b.Field
+}
+
+type Data map[string][]Field
+
+type DataWalkFunc func(schema string, field Field, fieldIdx int)
+
+// Walk calls a walker function for each schema and field
+func (d *Data) Walk(walker DataWalkFunc) {
+	for schema, fields := range *d {
+		for fieldIdx, f := range fields {
+			walker(schema, f, fieldIdx)
+		}
+	}
+}
+
+// AppendFields appends the given field to the list of fields for the given schema
+func (d *Data) AppendField(schema string, field Field) {
+	(*d)[schema] = append((*d)[schema], field)
+}
+
+// Diff compares this structure against `b` and returns a new Data instance with
+// all the fields in `b` not found in `a`.
+func (a Data) Diff(b Data) Data {
+	result := Data{}
+	// This is a dumb loop that could be optimized
+	for schema, bFields := range b {
+		for _, bField := range bFields {
+			found := false
+			if _, ok := a[schema]; ok {
+				for _, aField := range a[schema] {
+					if bField.Equals(&aField) {
+						found = true
+						break
+					}
+				}
+			}
+
+			if !(found) {
+				result[schema] = append(result[schema], bField)
+			}
+		}
+	}
+
+	return result
+}
 
 type UnusedField struct {
 	Field string `json:"field"`
@@ -42,20 +88,5 @@ func CompareFiles(fileA string, fileB string) (Data, error) {
 		return nil, fmt.Errorf("could not json decode %s: %w", fileB, err)
 	}
 
-	result := Data{}
-	// This is a dumb loop that could be optimized
-	for _, bField := range bData {
-		found := false
-		for _, aField := range aData {
-			if bField.Field == aField.Field {
-				found = true
-				break
-			}
-		}
-		if !(found) {
-			result = append(result, bField)
-		}
-	}
-
-	return result, nil
+	return aData.Diff(bData), nil
 }

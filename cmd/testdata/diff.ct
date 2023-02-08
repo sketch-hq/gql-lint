@@ -36,13 +36,17 @@ Global Flags:
 
 # outputs diff to stdout if no `--output` is given
 $ gql-lint diff testdata/json/a.json testdata/json/b.json
+Schema:  b.json
+Article.isPublic (Please migrate to publicAccessLevel)
+  somefile.graphql:7
 Article.view (Please migrate to Article.permissions)
   somefile.graphql:13
 
 # outputs diff as json
 $ gql-lint diff --output json testdata/json/a.json testdata/json/b.json
-[{"field":"Article.view","file":"somefile.graphql","line":13,"reason":"Please migrate to Article.permissions"}]
+{"b.json":[{"field":"Article.isPublic","file":"somefile.graphql","line":7,"reason":"Please migrate to publicAccessLevel"},{"field":"Article.view","file":"somefile.graphql","line":13,"reason":"Please migrate to Article.permissions"}]}
 
 # outputs diff as xcode
 $ gql-lint diff --output xcode testdata/json/a.json testdata/json/b.json
+somefile.graphql:7: warning: Article.isPublic is deprecated - Reason: Please migrate to publicAccessLevel
 somefile.graphql:13: warning: Article.view is deprecated - Reason: Please migrate to Article.permissions

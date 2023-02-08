@@ -29,7 +29,7 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 
 	switch flags.outputFormat {
 	case stdoutFormat:
-		diffStdOut(fileA, fileB, result)
+		diffStdOut(result)
 	case jsonFormat:
 		err = diffJsonOut(result)
 		if err != nil {
@@ -44,15 +44,14 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func diffStdOut(_ string, fileB string, out output.Data) {
-	if len(out) == 0 {
-		return
-	}
-
-	for _, f := range out {
+func diffStdOut(out output.Data) {
+	out.Walk(func(schema string, f output.Field, i int) {
+		if i == 0 {
+			fmt.Println("Schema: ", schema)
+		}
 		fmt.Printf("%s (%s)\n", f.Field, f.DeprecationReason)
 		fmt.Printf("  %s:%d\n", f.File, f.Line)
-	}
+	})
 }
 
 func diffJsonOut(out output.Data) error {
@@ -66,10 +65,10 @@ func diffJsonOut(out output.Data) error {
 }
 
 func diffXcodeOut(out output.Data) {
-	for _, f := range out {
+	out.Walk(func(_ string, f output.Field, _ int) {
 		fmt.Printf("%s:%d: warning: ", f.File, f.Line)
 		fmt.Printf("%s is deprecated ", f.Field)
 		fmt.Printf("- Reason: %s", f.DeprecationReason)
 		fmt.Println()
-	}
+	})
 }

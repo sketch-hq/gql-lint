@@ -42,14 +42,14 @@ func TestCompareFiles(t *testing.T) {
 				fileA: "testdata/a.json",
 				fileB: "testdata/b.json",
 			},
-			want: output.Data{
-				output.Field{
+			want: output.Data{"http://example.com/schema": []output.Field{
+				{
 					Field:             "Article.view",
 					File:              "somefile.graphql",
 					Line:              13,
 					DeprecationReason: "Please migrate to Article.permissions",
 				},
-			},
+			}},
 			wantErr: false,
 		},
 		{

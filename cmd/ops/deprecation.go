@@ -6,7 +6,6 @@ import (
 
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
-	"github.com/sketch-hq/gql-lint/parser"
 	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/spf13/cobra"
 )
@@ -24,39 +23,52 @@ The "queries" argument is a file glob matching one or more graphql query or muta
 
 func init() {
 	Program.AddCommand(deprecationsCmd)
-	deprecationsCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
+	deprecationsCmd.Flags().StringArrayVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url. Can be repeated (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
-
-	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
+	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore. Can be repeated")
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
-	schema, err := sources.LoadSchema(flags.schemaFile)
-	if err != nil {
-		return err
-	}
+	out := output.Data{}
 
-	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
-	if err != nil {
-		return fmt.Errorf("Error: %s", err)
-	}
+	for _, schemaFile := range flags.schemaFiles {
+		schema, err := sources.LoadSchema(schemaFile)
+		if err != nil {
+			return err
+		}
 
-	queryFields, err := sources.LoadQueries(schema, queryFiles)
-	if err != nil {
-		return fmt.Errorf("Unable to parse files: %s", err)
+		queryFiles, err := input.ExpandGlobs(args, flags.ignore)
+		if err != nil {
+			return fmt.Errorf("Error: %s", err)
+		}
+
+		queryFields, err := sources.LoadQueries(schema, queryFiles)
+		if err != nil {
+			return fmt.Errorf("Unable to parse files: %s", err)
+		}
+
+		for _, q := range queryFields {
+			f := output.Field{
+				Field:             q.Path,
+				File:              q.File,
+				Line:              q.Line,
+				DeprecationReason: q.DeprecationReason,
+			}
+			out.AppendField(schemaFile, f)
+		}
 	}
 
 	switch flags.outputFormat {
 	case stdoutFormat:
-		deprecationStdOut(queryFields)
+		deprecationStdOut(out)
 
 	case jsonFormat:
-		err = deprecationJsonOut(queryFields)
+		err := deprecationJsonOut(out)
 		if err != nil {
 			return err
 		}
 	case xcodeFormat:
-		deprecationXcodeOut(queryFields)
+		deprecationXcodeOut(out)
 	default:
 		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", flags.outputFormat)
 	}
@@ -64,27 +76,19 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func deprecationStdOut(queryFields parser.QueryFieldList) {
-	for _, q := range queryFields {
-		fmt.Printf("%s is deprecated\n", q.Path)
-		fmt.Printf("  File:   %s:%d\n", q.File, q.Line)
-		fmt.Printf("  Reason: %s\n", q.DeprecationReason)
+func deprecationStdOut(out output.Data) {
+	out.Walk(func(schema string, f output.Field, i int) {
+		if i == 0 {
+			fmt.Println("Schema:", schema)
+		}
+		fmt.Printf("  %s is deprecated\n", f.Field)
+		fmt.Printf("    File:   %s:%d\n", f.File, f.Line)
+		fmt.Printf("    Reason: %s\n", f.DeprecationReason)
 		fmt.Println()
-	}
+	})
 }
 
-func deprecationJsonOut(queryFields parser.QueryFieldList) error {
-	out := output.Data{}
-
-	for _, q := range queryFields {
-		f := output.Field{
-			Field:             q.Path,
-			File:              q.File,
-			Line:              q.Line,
-			DeprecationReason: q.DeprecationReason,
-		}
-		out = append(out, f)
-	}
+func deprecationJsonOut(out output.Data) error {
 	bytes, err := json.Marshal(out)
 	if err != nil {
 		return fmt.Errorf("Failed to encode json: %s\n", err)
@@ -94,11 +98,11 @@ func deprecationJsonOut(queryFields parser.QueryFieldList) error {
 	return nil
 }
 
-func deprecationXcodeOut(queryFields parser.QueryFieldList) {
-	for _, q := range queryFields {
-		fmt.Printf("%s:%d: warning: ", q.File, q.Line)
-		fmt.Printf("%s is deprecated ", q.Path)
-		fmt.Printf("- Reason: %s", q.DeprecationReason)
+func deprecationXcodeOut(out output.Data) {
+	out.Walk(func(_ string, f output.Field, _ int) {
+		fmt.Printf("%s:%d: warning: ", f.File, f.Line)
+		fmt.Printf("%s is deprecated ", f.Field)
+		fmt.Printf("- Reason: %s", f.DeprecationReason)
 		fmt.Println()
-	}
+	})
 }
