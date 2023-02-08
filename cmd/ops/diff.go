@@ -29,7 +29,7 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 
 	switch flags.outputFormat {
 	case stdoutFormat:
-		diffStdOut(fileA, fileB, result)
+		diffStdOut(result)
 	case jsonFormat:
 		err = diffJsonOut(result)
 		if err != nil {
@@ -44,7 +44,7 @@ func diffCmdRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func diffStdOut(_ string, _ string, out output.Data) {
+func diffStdOut(out output.Data) {
 	out.Walk(func(schema string, f output.Field, i int) {
 		if i == 0 {
 			fmt.Println("Schema: ", schema)
