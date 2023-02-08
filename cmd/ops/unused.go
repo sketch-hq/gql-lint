@@ -31,6 +31,7 @@ func init() {
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 
 	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
+	unusedCmd.Flags().BoolVarP(&flags.verbose, verboseFlagName, "v", false, "Verbose mode. Will print debug messages")
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
