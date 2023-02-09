@@ -26,7 +26,6 @@ func init() {
 	deprecationsCmd.Flags().StringArrayVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url. Can be repeated (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore. Can be repeated")
-	deprecationsCmd.Flags().BoolVarP(&flags.verbose, verboseFlagName, "v", false, "Verbose mode. Will print debug messages")
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
