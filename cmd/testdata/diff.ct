@@ -9,6 +9,7 @@ Flags:
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # complains if only one file to diff was given
 $ gql-lint diff testdata/json/a.json --> FAIL
@@ -21,6 +22,7 @@ Flags:
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # complains if json file doesn't exists
 $ gql-lint diff doesntexists.json doesntexists.json --> FAIL
@@ -33,6 +35,7 @@ Flags:
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # outputs diff to stdout if no `--output` is given
 $ gql-lint diff testdata/json/a.json testdata/json/b.json

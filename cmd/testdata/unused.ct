@@ -8,10 +8,10 @@ Flags:
   -h, --help                 help for unused
       --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # complains if --schema is missing
 $ gql-lint unused /tmp --> FAIL
@@ -23,10 +23,10 @@ Flags:
   -h, --help                 help for unused
       --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # complains if a queries directory is not given
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql --> FAIL
@@ -38,10 +38,10 @@ Flags:
   -h, --help                 help for unused
       --ignore stringArray   Files to ignore
       --schema string        Server's schema as file or url (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # outputs unused deprecated fields to stdout if no `--output` is given
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
@@ -68,14 +68,14 @@ $ gql-lint unused --output markdown --schema testdata/schemas/with_deprecations.
 - Book.title
 
 # outputs debug info if --verbose is used
-$ gql-lint unused --verbose --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
+$ gql-lint --verbose unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 debug: Processing the following query files:
   - testdata/queries/unused/without_title/without_title.gql
 debug: Succesfully loaded schema from testdata/schemas/with_deprecations.gql
 `Book.title` is unused and can be removed
 
 # outputs debug info if -v is used
-$ gql-lint unused -v --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
+$ gql-lint -v unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 debug: Processing the following query files:
   - testdata/queries/unused/without_title/without_title.gql
 debug: Succesfully loaded schema from testdata/schemas/with_deprecations.gql

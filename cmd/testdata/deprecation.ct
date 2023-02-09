@@ -8,10 +8,10 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # complains if --schema is missing
 $ gql-lint deprecation /tmp --> FAIL
@@ -23,10 +23,10 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # complains if a queries directory is not given
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --> FAIL
@@ -38,10 +38,10 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # outputs deprecations to stdout if no `--output` is given
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
@@ -60,10 +60,10 @@ Flags:
   -h, --help                 help for deprecation
       --ignore stringArray   Files to ignore. Can be repeated
       --schema stringArray   Server's schema as file or url. Can be repeated (required)
-  -v, --verbose              Verbose mode. Will print debug messages
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
+  -v, --verbose         Verbose mode. Will print debug messages
 
 # supports repeated --schema
 $ gql-lint deprecation --schema testdata/schemas/with_deprecations.gql --schema testdata/schemas/album.gql testdata/queries/author/*.gql
@@ -85,7 +85,7 @@ $ gql-lint deprecation --output xcode --schema testdata/schemas/with_deprecation
 testdata/queries/author/author.gql:7: warning: author.books.title is deprecated - Reason: untitled books are better
 
 # outputs debug info if --verbose is used
-$ gql-lint deprecation --verbose --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
+$ gql-lint --verbose deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
 debug: Processing the following query files:
   - testdata/queries/author/author.gql
   - testdata/queries/author/author_id.gql
@@ -96,7 +96,7 @@ Schema: testdata/schemas/with_deprecations.gql
     Reason: untitled books are better
 
 # outputs debug info if -v is used
-$ gql-lint deprecation --verbose --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
+$ gql-lint -v deprecation --schema testdata/schemas/with_deprecations.gql testdata/queries/author/*.gql
 debug: Processing the following query files:
   - testdata/queries/author/author.gql
   - testdata/queries/author/author_id.gql
