@@ -6,7 +6,6 @@ import (
 
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
-	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/sketch-hq/gql-lint/unused"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +26,7 @@ The "queries" argument is a file glob matching one or more graphql query or muta
 
 func init() {
 	Program.AddCommand(unusedCmd)
-	unusedCmd.Flags().StringVar(&flags.schemaFile, schemaFileFlagName, "", "Server's schema as file or url (required)")
+	unusedCmd.Flags().StringArrayVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url. Can be repeated (required)")
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
 
 	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
@@ -46,29 +45,20 @@ func unusedCmdRun(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	schema, err := sources.LoadSchema(flags.schemaFile)
-	if err != nil {
-		return err
-	}
-
-	if flags.verbose {
-		fmt.Println("debug: Succesfully loaded schema from", flags.schemaFile)
-	}
-
-	unusedFields, err := unused.GetUnusedFields(schema, queryFiles)
+	out, err := unused.GetUnusedFields(flags.schemaFiles, queryFiles, flags.verbose)
 	if err != nil {
 		return err
 	}
 
 	switch flags.outputFormat {
 	case stdoutFormat:
-		unusedStdOut(unusedFields)
+		unusedStdOut(out)
 
 	case markdownFormat:
-		unusedMarkdownOut(unusedFields)
+		unusedMarkdownOut(out)
 
 	case jsonFormat:
-		err = unusedJSONOut(unusedFields)
+		err = unusedJSONOut(out)
 		if err != nil {
 			return err
 		}
@@ -80,40 +70,38 @@ func unusedCmdRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func unusedStdOut(fields []unused.UnusedField) {
-	if len(fields) == 0 {
-		fmt.Println("Nothing can be removed right now")
-		return
-	}
-
-	for _, q := range fields {
-		fmt.Printf("`%s` is unused and can be removed\n", q.Name)
-	}
+func unusedStdOut(out output.Data) {
+	out.Walk(func(schema string, f output.Field, i int) {
+		if i == 0 {
+			fmt.Println("Schema:", schema)
+		}
+		fmt.Printf("  %s (line %d) is unused and can be removed \n", f.Field, f.Line)
+		fmt.Println()
+	})
 }
 
-func unusedJSONOut(fields []unused.UnusedField) error {
-	out := make([]output.UnusedField, len(fields))
-
-	for i, f := range fields {
-		out[i] = output.UnusedField{Field: f.Name}
-	}
+func unusedJSONOut(out output.Data) error {
 	bytes, err := json.Marshal(out)
 	if err != nil {
-		return fmt.Errorf("failed to encode json: %s\n", err)
+		return fmt.Errorf("failed to encode json: %s", err)
 	}
 
 	fmt.Print(string(bytes))
 	return nil
 }
 
-func unusedMarkdownOut(fields []unused.UnusedField) {
-	if len(fields) == 0 {
-		fmt.Println("Nothing can be removed right now")
-		return
-	}
+func unusedMarkdownOut(out output.Data) {
+	hasUnused := false
 
-	for _, q := range fields {
-		fmt.Printf("- %s", q.Name)
-		fmt.Println()
+	out.Walk(func(schema string, f output.Field, fieldIdx int) {
+		if fieldIdx == 0 {
+			hasUnused = true
+			fmt.Println("**", schema, "**")
+		}
+		fmt.Printf("- %s (line `%d`)\n", f.Field, f.Line)
+	})
+
+	if !hasUnused {
+		fmt.Println("Nothing can be removed right now")
 	}
 }

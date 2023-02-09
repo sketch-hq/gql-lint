@@ -10,6 +10,7 @@ import (
 
 type SchemaField struct {
 	Name string
+	Line int
 }
 
 type QueryField struct {
@@ -57,12 +58,18 @@ func ParseDeprecatedFields(schema *ast.Schema) []SchemaField {
 		}
 
 		if ok, _ := isDeprecated(definition.Directives); ok {
-			fields = append(fields, SchemaField{Name: name})
+			fields = append(fields, SchemaField{
+				Name: name,
+				Line: definition.Position.Line,
+			})
 		}
 
 		for _, field := range definition.Fields {
 			if ok, _ := isDeprecated(field.Directives); ok {
-				fields = append(fields, SchemaField{Name: fmt.Sprintf("%s.%s", name, field.Name)})
+				fields = append(fields, SchemaField{
+					Name: fmt.Sprintf("%s.%s", name, field.Name),
+					Line: definition.Position.Line,
+				})
 			}
 		}
 	}

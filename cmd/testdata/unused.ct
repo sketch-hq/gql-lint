@@ -7,7 +7,7 @@ Usage:
 Flags:
   -h, --help                 help for unused
       --ignore stringArray   Files to ignore
-      --schema string        Server's schema as file or url (required)
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -22,7 +22,7 @@ Usage:
 Flags:
   -h, --help                 help for unused
       --ignore stringArray   Files to ignore
-      --schema string        Server's schema as file or url (required)
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -37,7 +37,7 @@ Usage:
 Flags:
   -h, --help                 help for unused
       --ignore stringArray   Files to ignore
-      --schema string        Server's schema as file or url (required)
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -45,38 +45,46 @@ Global Flags:
 
 # outputs unused deprecated fields to stdout if no `--output` is given
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
-`Book.title` is unused and can be removed
+Schema: testdata/schemas/with_deprecations.gql
+  Book.title (line 1) is unused and can be removed
+
+# supports repeated --schema
+$ gql-lint unused --schema testdata/schemas/with_deprecations.gql --schema testdata/schemas/album.gql testdata/queries/unused/without_title/*.gql
+Schema: testdata/schemas/with_deprecations.gql
+  Book.title (line 1) is unused and can be removed
 
 # outputs deprecations as json
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
-[{"field":"Book.title"}]
+{"testdata/schemas/with_deprecations.gql":[{"field":"Book.title","file":"","line":1,"reason":""}]}
 
 # ignores a given file blob
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql --ignore testdata/queries/unused/without_title/*.gql testdata/queries/unused/**/*.gql
-[]
+{"testdata/schemas/with_deprecations.gql":[]}
 
-# outputs success message if no unused fields are found
+# outputs nothing if no unused fields are found
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/with_title/with_title.gql testdata/queries/unused/without_title/without_title.gql
-Nothing can be removed right now
 
 # outputs empty json if no unused fields are found
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/with_title/with_title.gql testdata/queries/unused/without_title/without_title.gql
-[]
+{"testdata/schemas/with_deprecations.gql":[]}
 
 # outputs for slack
 $ gql-lint unused --output markdown --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
-- Book.title
+** testdata/schemas/with_deprecations.gql **
+- Book.title (line `1`)
 
 # outputs debug info if --verbose is used
 $ gql-lint --verbose unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 debug: Processing the following query files:
   - testdata/queries/unused/without_title/without_title.gql
 debug: Succesfully loaded schema from testdata/schemas/with_deprecations.gql
-`Book.title` is unused and can be removed
+Schema: testdata/schemas/with_deprecations.gql
+  Book.title (line 1) is unused and can be removed
 
 # outputs debug info if -v is used
 $ gql-lint -v unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
 debug: Processing the following query files:
   - testdata/queries/unused/without_title/without_title.gql
 debug: Succesfully loaded schema from testdata/schemas/with_deprecations.gql
-`Book.title` is unused and can be removed
+Schema: testdata/schemas/with_deprecations.gql
+  Book.title (line 1) is unused and can be removed

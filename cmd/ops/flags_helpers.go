@@ -2,7 +2,6 @@ package ops
 
 const (
 	schemaFileFlagName   = "schema"
-	schemaFileDefault    = ""
 	outputFormatFlagName = "output"
 	jsonFormat           = "json"
 	stdoutFormat         = "stdout"
@@ -14,7 +13,6 @@ const (
 
 var flags = struct {
 	outputFormat string
-	schemaFile   string
 	schemaFiles  []string
 	ignore       []string
 	verbose      bool
@@ -24,7 +22,6 @@ var flags = struct {
 // run unless we do it here.
 func setFlagsToDefault() {
 	flags.outputFormat = stdoutFormat
-	flags.schemaFile = schemaFileDefault
 	flags.schemaFiles = []string{}
 	flags.ignore = []string{}
 	flags.verbose = false
