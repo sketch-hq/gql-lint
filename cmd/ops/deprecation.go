@@ -36,10 +36,21 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Error: %s", err)
 	}
 
+	if flags.verbose {
+		fmt.Println("debug: Processing the following query files:")
+		for _, file := range queryFiles {
+			fmt.Println("  -", file)
+		}
+	}
+
 	for _, schemaFile := range flags.schemaFiles {
 		schema, err := sources.LoadSchema(schemaFile)
 		if err != nil {
 			return err
+		}
+
+		if flags.verbose {
+			fmt.Println("debug: Succesfully loaded schema from", schemaFile)
 		}
 
 		queryFields, err := sources.LoadQueries(schema, queryFiles)

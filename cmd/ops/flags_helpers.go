@@ -9,6 +9,7 @@ const (
 	markdownFormat       = "markdown"
 	xcodeFormat          = "xcode"
 	ignoreFlagName       = "ignore"
+	verboseFlagName      = "verbose"
 )
 
 var flags = struct {
@@ -16,6 +17,7 @@ var flags = struct {
 	schemaFile   string
 	schemaFiles  []string
 	ignore       []string
+	verbose      bool
 }{}
 
 // this is important for tests as these flags wont be reset between each test
@@ -25,4 +27,5 @@ func setFlagsToDefault() {
 	flags.schemaFile = schemaFileDefault
 	flags.schemaFiles = []string{}
 	flags.ignore = []string{}
+	flags.verbose = false
 }
