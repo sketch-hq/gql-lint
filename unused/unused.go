@@ -1,8 +1,9 @@
 package unused
 
 import (
-	"sort"
+	"fmt"
 
+	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/parser"
 	"github.com/sketch-hq/gql-lint/sources"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -12,27 +13,52 @@ type UnusedField struct {
 	Name string
 }
 
-type byName []UnusedField
-
-func (a byName) Len() int           { return len(a) }
-func (a byName) Less(i, j int) bool { return a[i].Name < a[j].Name }
-func (a byName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-
-type unusedRegistry map[string]UnusedField
+type unusedRegistry map[string]output.Field
 
 func (r unusedRegistry) Record(field parser.SchemaField) {
-	r[field.Name] = UnusedField{Name: field.Name}
+	r[field.Name] = output.Field{
+		Field: field.Name,
+		Line:  field.Line,
+		// Not recording the file as that would be the same for all (the schema)
+	}
 }
 
-func GetUnusedFields(schema *ast.Schema, queriesPaths []string) ([]UnusedField, error) {
-	unusedFields := make(unusedRegistry)
+func GetUnusedFields(schemas []string, queryFiles []string, verbose bool) (output.Data, error) {
+	out := output.Data{}
 
-	deprecatedFields := parser.ParseDeprecatedFields(schema)
+	for _, schemaSource := range schemas {
+		schema, err := sources.LoadSchema(schemaSource)
+		if err != nil {
+			return nil, err
+		}
 
-	queries, err := sources.LoadQueries(schema, queriesPaths)
-	if err != nil {
-		return []UnusedField{}, err
+		if verbose {
+			fmt.Println("debug: Succesfully loaded schema from", schemaSource)
+		}
+
+		queries, err := sources.LoadQueries(schema, queryFiles)
+		if err != nil {
+			return nil, err
+		}
+
+		out[schemaSource] = []output.Field{}
+		unusedFields, err := getUnusedFields(schema, queries)
+		if err != nil {
+			return nil, err
+		}
+		for _, field := range unusedFields {
+			out.AppendField(schemaSource, field)
+		}
 	}
+
+	out.SortByField()
+
+	return out, nil
+}
+
+func getUnusedFields(schema *ast.Schema, queries parser.QueryFieldList) (unusedRegistry, error) {
+	unusedFields := make(unusedRegistry)
+	deprecatedFields := parser.ParseDeprecatedFields(schema)
 
 	for _, deprecatedField := range deprecatedFields {
 		used := isUsed(deprecatedField, queries)
@@ -45,14 +71,7 @@ func GetUnusedFields(schema *ast.Schema, queriesPaths []string) ([]UnusedField, 
 		}
 	}
 
-	result := make([]UnusedField, 0, len(unusedFields))
-	for _, field := range unusedFields {
-		result = append(result, field)
-	}
-
-	sort.Sort(byName(result))
-
-	return result, nil
+	return unusedFields, nil
 }
 
 func isUsed(field parser.SchemaField, queryFields parser.QueryFieldList) bool {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 )
 
 type Field struct {
@@ -18,6 +19,14 @@ func (f *Field) Equals(b *Field) bool {
 }
 
 type Data map[string][]Field
+
+func (d Data) SortByField() {
+	for schema := range d {
+		sort.Slice(d[schema], func(i, j int) bool {
+			return d[schema][i].Field < d[schema][j].Field
+		})
+	}
+}
 
 type DataWalkFunc func(schema string, field Field, fieldIdx int)
 

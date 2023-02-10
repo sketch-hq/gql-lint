@@ -29,8 +29,6 @@ func init() {
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
-	out := output.Data{}
-
 	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
@@ -43,6 +41,7 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	out := output.Data{}
 	for _, schemaFile := range flags.schemaFiles {
 		schema, err := sources.LoadSchema(schemaFile)
 		if err != nil {
