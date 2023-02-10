@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 VERSION=$1
@@ -19,16 +20,19 @@ else
   PLATFORM="linux"
 fi
 
-
-TARNAME=gql-lint-$VERSION-$PLATFORM-$ARCH.tar.gz
+# Stay backwards compatible with older versions that had the version in the file name.
+if [[ "v1v2v3" == *"$VERSION"* ]]; then
+  TARNAME=gql-lint-$VERSION-$PLATFORM-$ARCH.tar.gz
+else
+  TARNAME=gql-lint-$PLATFORM-$ARCH.tar.gz
+fi
+URL="https://github.com/sketch-hq/gql-lint/releases/download/$VERSION/$TARNAME"
 
 echo Downloading version $VERSION for $PLATFORM-$ARCH
-echo https://github.com/sketch-hq/gql-lint/releases/download/$VERSION/$TARNAME
+echo $URL
 echo ---
 
-
-
-curl -SLJO https://github.com/sketch-hq/gql-lint/releases/download/$VERSION/$TARNAME
+curl -SLJO $URL
 
 echo ---
 echo Installing
