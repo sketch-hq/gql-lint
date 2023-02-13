@@ -1,4 +1,5 @@
 type Album {
   id: Int!
   name: String!
+  title: String! @deprecated(reason: "use name instead")
 }
