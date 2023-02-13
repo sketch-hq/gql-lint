@@ -96,7 +96,7 @@ func unusedMarkdownOut(out output.Data) {
 	out.Walk(func(schema string, f output.Field, fieldIdx int) {
 		if fieldIdx == 0 {
 			if hasUnused {
-				fmt.Printf("\n") // new line for each schema
+				fmt.Printf("\n") // new line for each schema, except the first one.
 			}
 			hasUnused = true
 			fmt.Println("Schema:", schema)
