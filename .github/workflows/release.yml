@@ -32,9 +32,9 @@ jobs:
     runs-on: macos-12
     needs: releases-matrix
     env:
-      ARM_FILE: "gql-lint-${{ github.ref_name }}-darwin-arm64.tar.gz"
-      INTEL_FILE: "gql-lint-${{ github.ref_name }}-darwin-amd64.tar.gz"
-      UNIVERSAL_FILE: "gql-lint-${{ github.ref_name }}-darwin-universal.tar.gz"
+      ARM_FILE: "gql-lint-darwin-arm64.tar.gz"
+      INTEL_FILE: "gql-lint-darwin-amd64.tar.gz"
+      UNIVERSAL_FILE: "gql-lint-darwin-universal.tar.gz"
     steps:
       - name: Print used variables
         run: |
