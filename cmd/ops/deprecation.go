@@ -79,6 +79,8 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		}
 	case xcodeFormat:
 		deprecationXcodeOut(out)
+	case annotateFormat:
+		deprecationAnnotateOut(out)
 	default:
 		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", flags.outputFormat)
 	}
@@ -115,4 +117,18 @@ func deprecationXcodeOut(out output.Data) {
 		fmt.Printf("- Reason: %s", f.DeprecationReason)
 		fmt.Println()
 	})
+}
+
+func deprecationAnnotateOut(out output.Data) {
+	fmt.Print("[")
+	out.Walk(func(_ string, f output.Field, idx int) {
+		if idx > 0 {
+			fmt.Print(",\n")
+		}
+		fmt.Printf("{ \"file\": \"%s\", \"line\": %d, ", f.File, f.Line)
+		fmt.Printf("\"title\": \"%s is deprecated\", ", f.Field)
+		fmt.Printf("\"message\": \"%s\", ", f.DeprecationReason)
+		fmt.Printf("\"annotation_level\": \"warning\" }")
+	})
+	fmt.Print("]")
 }

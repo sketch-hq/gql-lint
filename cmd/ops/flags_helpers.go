@@ -7,6 +7,7 @@ const (
 	stdoutFormat         = "stdout"
 	markdownFormat       = "markdown"
 	xcodeFormat          = "xcode"
+	annotateFormat       = "annotate"
 	ignoreFlagName       = "ignore"
 	verboseFlagName      = "verbose"
 )
