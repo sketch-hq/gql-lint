@@ -10,6 +10,8 @@ curl https://raw.githubusercontent.com/sketch-hq/gql-lint/lab/releases/install.s
 curl https://raw.githubusercontent.com/sketch-hq/gql-lint/lab/releases/install.sh | /bin/bash -s -- v0
 ```
 
+You can also use `latest` as the version to get whatever is the latest available version.
+
 ## Usage
 
 ### Piping arguments
@@ -33,4 +35,4 @@ The "external interface" of the CLI is tested using `cmdtest-go`. If you makes c
 UPDATE_CMD_TESTS=true make test
 ```
 
-Remember to manually inspect any difference to ensure the new output is corret.
+Remember to manually inspect any difference to ensure the new output is correct.
