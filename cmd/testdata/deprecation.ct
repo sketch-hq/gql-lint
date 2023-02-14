@@ -5,10 +5,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help              help for deprecation
-      --ignore strings    Files to ignore
-      --include strings   Only include files matching this pattern
-      --schema strings    Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore. Can be repeated
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -21,10 +20,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help              help for deprecation
-      --ignore strings    Files to ignore
-      --include strings   Only include files matching this pattern
-      --schema strings    Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore. Can be repeated
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -37,10 +35,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help              help for deprecation
-      --ignore strings    Files to ignore
-      --include strings   Only include files matching this pattern
-      --schema strings    Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore. Can be repeated
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -60,10 +57,9 @@ Usage:
   gql-lint deprecation [flags] queries
 
 Flags:
-  -h, --help              help for deprecation
-      --ignore strings    Files to ignore
-      --include strings   Only include files matching this pattern
-      --schema strings    Server's schema as file or url (required)
+  -h, --help                 help for deprecation
+      --ignore stringArray   Files to ignore. Can be repeated
+      --schema stringArray   Server's schema as file or url. Can be repeated (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -82,10 +78,6 @@ $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations
 
 # ignores a given file glob
 $ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql --ignore testdata/queries/author/author_id.gql testdata/queries/author/*.gql
-{"testdata/schemas/with_deprecations.gql":[{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]}
-
-# only includes files matching given file glob
-$ gql-lint deprecation --output json --schema testdata/schemas/with_deprecations.gql --include testdata/**/author.gql testdata/queries/**/*.gql
 {"testdata/schemas/with_deprecations.gql":[{"field":"author.books.title","file":"testdata/queries/author/author.gql","line":7,"reason":"untitled books are better"}]}
 
 # outputs deprecations as xcode

@@ -9,9 +9,9 @@ import (
 
 type Field struct {
 	Field             string `json:"field"`
-	File              string `json:"file,omitempty"`
+	File              string `json:"file"`
 	Line              int    `json:"line"`
-	DeprecationReason string `json:"reason,omitempty"`
+	DeprecationReason string `json:"reason"`
 }
 
 func (f *Field) Equals(b *Field) bool {
