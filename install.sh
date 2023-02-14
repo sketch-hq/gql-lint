@@ -21,12 +21,17 @@ else
 fi
 
 # Stay backwards compatible with older versions that had the version in the file name.
-if [[ "v1v2v3" == *"$VERSION"* ]]; then
+if [[ "v1v2v3v4" == *"$VERSION"* ]]; then
   TARNAME=gql-lint-$VERSION-$PLATFORM-$ARCH.tar.gz
 else
   TARNAME=gql-lint-$PLATFORM-$ARCH.tar.gz
 fi
-URL="https://github.com/sketch-hq/gql-lint/releases/download/$VERSION/$TARNAME"
+
+if [[ "$VERSION" == "latest" ]]; then
+  URL="https://github.com/sketch-hq/gql-lint/releases/latest/download/$TARNAME"
+else
+  URL="https://github.com/sketch-hq/gql-lint/releases/download/$VERSION/$TARNAME"
+fi
 
 echo Downloading version $VERSION for $PLATFORM-$ARCH
 echo $URL
