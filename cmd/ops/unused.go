@@ -26,14 +26,14 @@ The "queries" argument is a file glob matching one or more graphql query or muta
 
 func init() {
 	Program.AddCommand(unusedCmd)
-	unusedCmd.Flags().StringArrayVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url. Can be repeated (required)")
+	unusedCmd.Flags().StringSliceVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url (required)")
 	unusedCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
-
-	unusedCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
+	unusedCmd.Flags().StringSliceVar(&flags.include, includeFlagName, []string{}, "Only include files matching this pattern")
+	unusedCmd.Flags().StringSliceVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
 }
 
 func unusedCmdRun(cmd *cobra.Command, args []string) error {
-	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
+	queryFiles, err := input.ExpandGlobs(args, flags.include, flags.ignore)
 	if err != nil {
 		return err
 	}
