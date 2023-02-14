@@ -5,9 +5,10 @@ Usage:
   gql-lint unused [flags] queries
 
 Flags:
-  -h, --help                 help for unused
-      --ignore stringArray   Files to ignore
-      --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -h, --help              help for unused
+      --ignore strings    Files to ignore
+      --include strings   Only include files matching this pattern
+      --schema strings    Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -20,9 +21,10 @@ Usage:
   gql-lint unused [flags] queries
 
 Flags:
-  -h, --help                 help for unused
-      --ignore stringArray   Files to ignore
-      --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -h, --help              help for unused
+      --ignore strings    Files to ignore
+      --include strings   Only include files matching this pattern
+      --schema strings    Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -35,9 +37,10 @@ Usage:
   gql-lint unused [flags] queries
 
 Flags:
-  -h, --help                 help for unused
-      --ignore stringArray   Files to ignore
-      --schema stringArray   Server's schema as file or url. Can be repeated (required)
+  -h, --help              help for unused
+      --ignore strings    Files to ignore
+      --include strings   Only include files matching this pattern
+      --schema strings    Server's schema as file or url (required)
 
 Global Flags:
       --output string   Output format. Choose between stdout, json, xcode. (default "stdout")
@@ -58,7 +61,11 @@ Schema: testdata/schemas/album.gql
 
 # outputs deprecations as json
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
-{"testdata/schemas/with_deprecations.gql":[{"field":"Book.title","file":"","line":1,"reason":""}]}
+{"testdata/schemas/with_deprecations.gql":[{"field":"Book.title","line":1}]}
+
+# only includes files matching given file glob
+$ gql-lint unused --output json --include ./**/album.gql --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/**/*.gql
+{"testdata/schemas/with_deprecations.gql":[{"field":"Book.title","line":1}]}
 
 # ignores a given file blob
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql --ignore testdata/queries/unused/without_title/*.gql testdata/queries/unused/**/*.gql
@@ -73,11 +80,11 @@ $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql 
 
 # outputs for slack
 $ gql-lint unused --output markdown --schema testdata/schemas/with_deprecations.gql --schema testdata/schemas/album.gql testdata/queries/unused/without_title/*.gql
-Schema: testdata/schemas/with_deprecations.gql
-- Book.title (line `1`)
-
 Schema: testdata/schemas/album.gql
 - Album.title (line `1`)
+
+Schema: testdata/schemas/with_deprecations.gql
+- Book.title (line `1`)
 
 # outputs debug info if --verbose is used
 $ gql-lint --verbose unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
