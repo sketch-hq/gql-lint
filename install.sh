@@ -41,6 +41,7 @@ echo ---
 tar xvzf $TARNAME
 rm $TARNAME
 
+echo "sudo for moving gql-lint to /usr/local/bin"
 sudo mv gql-lint /usr/local/bin
 
 echo Done!
