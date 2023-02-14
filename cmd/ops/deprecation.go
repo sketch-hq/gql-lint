@@ -23,13 +23,14 @@ The "queries" argument is a file glob matching one or more graphql query or muta
 
 func init() {
 	Program.AddCommand(deprecationsCmd)
-	deprecationsCmd.Flags().StringArrayVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url. Can be repeated (required)")
+	deprecationsCmd.Flags().StringSliceVar(&flags.schemaFiles, schemaFileFlagName, []string{}, "Server's schema as file or url (required)")
 	deprecationsCmd.MarkFlagRequired(schemaFileFlagName) //nolint:errcheck // will err if flag doesn't exist
-	deprecationsCmd.Flags().StringArrayVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore. Can be repeated")
+	deprecationsCmd.Flags().StringSliceVar(&flags.include, includeFlagName, []string{}, "Only include files matching this pattern")
+	deprecationsCmd.Flags().StringSliceVar(&flags.ignore, ignoreFlagName, []string{}, "Files to ignore")
 }
 
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
-	queryFiles, err := input.ExpandGlobs(args, flags.ignore)
+	queryFiles, err := input.ExpandGlobs(args, flags.include, flags.ignore)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}

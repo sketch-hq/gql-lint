@@ -11,12 +11,20 @@ type command interface {
 	InOrStdin() io.Reader
 }
 
-func ExpandGlobs(args []string, ignore []string) ([]string, error) {
+func ExpandGlobs(args []string, include []string, ignore []string) ([]string, error) {
 	var files []string
+
+	if len(include) > 0 {
+		var err error
+		include, err = ExpandGlobs(include, []string{}, []string{})
+		if err != nil {
+			return files, err
+		}
+	}
 
 	if len(ignore) > 0 {
 		var err error
-		ignore, err = ExpandGlobs(ignore, []string{})
+		ignore, err = ExpandGlobs(ignore, []string{}, []string{})
 		if err != nil {
 			return files, err
 		}
@@ -29,16 +37,45 @@ func ExpandGlobs(args []string, ignore []string) ([]string, error) {
 				return files, err
 			}
 
-			files = append(files, filter(matches, ignore)...)
-		} else if !contains(ignore, source) {
-			files = append(files, source)
+			filtered := filterIncludes(matches, include)
+			filtered = filterIgnored(filtered, ignore)
+			files = append(files, filtered...)
+			continue
 		}
+
+		// skip any files not matching our include filter
+		if len(include) > 0 && !contains(include, source) {
+			continue
+		}
+
+		// skip any files on the ignore list
+		if contains(ignore, source) {
+			continue
+		}
+
+		files = append(files, source)
 	}
 
 	return unique(files), nil
 }
 
-func filter(in []string, ignore []string) []string {
+func filterIncludes(in []string, includes []string) []string {
+	if len(includes) == 0 {
+		return in
+	}
+
+	var out []string
+
+	for _, s := range in {
+		if contains(includes, s) {
+			out = append(out, s)
+		}
+	}
+
+	return out
+}
+
+func filterIgnored(in []string, ignore []string) []string {
 	var out []string
 
 	for _, s := range in {

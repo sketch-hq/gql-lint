@@ -9,6 +9,7 @@ const (
 	xcodeFormat          = "xcode"
 	annotateFormat       = "annotate"
 	ignoreFlagName       = "ignore"
+	includeFlagName      = "include"
 	verboseFlagName      = "verbose"
 )
 
@@ -16,6 +17,7 @@ var flags = struct {
 	outputFormat string
 	schemaFiles  []string
 	ignore       []string
+	include      []string
 	verbose      bool
 }{}
 
@@ -25,5 +27,6 @@ func setFlagsToDefault() {
 	flags.outputFormat = stdoutFormat
 	flags.schemaFiles = []string{}
 	flags.ignore = []string{}
+	flags.include = []string{}
 	flags.verbose = false
 }
