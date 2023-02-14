@@ -24,9 +24,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
+          asset_name: "gql-lint-${{ matrix.goos }}-${{ matrix.goarch }}"
           ldflags: "-s -w -X main.version=${{ github.ref_name }}"
           binary_name: "gql-lint"
-
+          
   lipo:
     name: Universal Mac binary
     runs-on: macos-12
@@ -91,3 +92,4 @@ jobs:
           asset_path: "./${{ env.UNIVERSAL_FILE }}.md5"
           asset_name: "${{ env.UNIVERSAL_FILE }}.md5"
           asset_content_type: application/text
+          
