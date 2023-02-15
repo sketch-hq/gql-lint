@@ -1,0 +1,20 @@
+name: Run reusable workflow on pr's
+on: workflow_dispatch # replace with your trigger, probably pull_request
+
+# To write annotations and comments to the PR
+permissions: 
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency: on-pr-example-concurrency
+
+jobs:
+  gql-lint:
+    uses: sketch-hq/gql-lint-integrations/.github/workflows/gql_new_deprecated_fields.yml@main
+    with:
+      base_branch: main
+      schema_urls: "https://one.com/api/graphql,https://two.com/clients/graphql"
+      query_files: "*.gql,**/*.gql"
+      ignore_files: "**/skip.*"
+    secrets: inherit
