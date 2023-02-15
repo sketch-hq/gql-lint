@@ -1,0 +1,134 @@
+# This workflow will detect the introduction of any new deprecated graphql fields
+# Parent workflow must provide the following premissions: contents:read, checks: write, pull-requests: write
+# Parent workflo must pass the secrets: inherit option
+# See example: on-pr-example.yml
+name: New deprecated graphql fields
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch"
+        required: true
+        type: string
+        default: ""
+      schema_urls:
+        description: "Schema URLs to lint, comma separated. E.g: https://one.com/api/graphql,https://two.com/clients/graphql"
+        required: true
+        type: string
+        default: ""
+      query_files:
+        description: "Paths of query files to lint, comma separated. E.g: queries/**/*.graphql,api/**/*.gql"
+        required: true
+        type: string
+        default: ""
+      ignore_files:
+        description: "Paths of files to ignore, comma separated. E.g: .graphql/**/local.*.gql,other/path/**/*.graphql"
+        required: false
+        type: string
+        default: ""
+
+env:
+  GQL_LINT_INSTALLER: https://raw.githubusercontent.com/sketch-hq/gql-lint/main/install.sh
+
+jobs:
+  checkNewDeprecatedFieldUsage:
+    name: Check deprecated field usage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Install gql-lint
+        run: curl ${{ env.GQL_LINT_INSTALLER }} | /bin/bash -s -- latest
+
+      # Checkout the pr's branch
+      - uses: actions/checkout@v3
+
+      - name: Generate gql-lint files command segment
+        id: gql-lint-command-segment
+        run: |
+          set -f # disable globbing
+          OUTPUT="" # initialize output variable
+          mapfile -d ',' -t queries < <(printf '%s,' '${{ inputs.query_files }}')
+          for query in "${queries[@]}"; do
+            OUTPUT+="\"$query\" "
+          done
+          echo files=$OUTPUT >> $GITHUB_OUTPUT
+          set +f
+
+      - name: Find deprecated queries used in the PR branch
+        run: |
+          gql-lint deprecation --output json --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/pr.json
+          cat /tmp/pr.json | jq .
+
+      # Checkout branch we're planning to merge into
+      - uses: actions/checkout@v3
+        with:
+          ref: "${{ inputs.base_branch }}"
+
+      - name: Find deprecated queries used in the base branch
+        run: gql-lint deprecation --output json --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/base.json
+
+      - name: Diff to find any new deprecated fields introduced by PR branch
+        id: diff-fields
+        run: |
+          echo 'DIFF<<EOF' >> $GITHUB_OUTPUT
+          gql-lint diff /tmp/base.json /tmp/pr.json >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+      #Annotate the PR with findings just for modified files
+      - name: Get changed files
+        id: changed-files
+        uses: Ana06/get-changed-files@v2.2.0
+        with:
+          format: "csv"
+          filter: |
+            *.gql
+            *.graphql
+
+      - name: Generate annotations JSON
+        if: steps.changed-files.outputs.added_modified != ''
+        run: |
+          gql-lint deprecation --output annotate --include="${{ steps.changed-files.outputs.added_modified }}"  --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/annotations.json
+          cat /tmp/annotations.json | jq .
+
+      - name: Annotate files
+        if: steps.changed-files.outputs.added_modified != ''
+        uses: yuzutech/annotations-action@v0.4.0
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          title: "GraphQL Lint Annotations"
+          input: "/tmp/annotations.json"
+
+      - uses: mshick/add-pr-comment@v2
+        if: steps.changed-files.outputs.added_modified != '' && steps.diff-fields.outputs.DIFF == ''
+        with:
+          message-id: gql-deprecated
+          message: ✅ No new usage of deprecated graphql fields found.
+
+      - uses: mshick/add-pr-comment@v2
+        if: steps.changed-files.outputs.added_modified != '' && steps.diff-fields.outputs.DIFF != ''
+        with:
+          message-id: gql-deprecated
+          message: |
+            **🚨 This PR adds new usages of already deprecated fields**
+
+            Found the following new fields that are marked as deprecated. 
+            ```
+            ${{ steps.diff-fields.outputs.DIFF }}
+            ```
+            If you want to see all deprecated fields see the action's log or run the following locally:
+            ```sh
+            # install gql-lint if you haven't already
+            curl ${{ env.GQL_LINT_INSTALLER }} | /bin/bash -s -- latest
+
+            gql-lint deprecation --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }}
+            ```
+            Files checked:
+            `${{ steps.gql-lint-command-segment.outputs.files }}`
+
+      - name: Fail if new deprecated fields are found
+        if: steps.changed-files.outputs.added_modified != '' && steps.diff-fields.outputs.DIFF != ''
+        run: echo "Failing workflow because new deprecated fields were found" && exit 1
