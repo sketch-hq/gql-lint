@@ -11,7 +11,7 @@ concurrency: on-pr-example-concurrency
 
 jobs:
   gql-lint:
-    uses: sketch-hq/gql-lint-integrations/.github/workflows/gql_new_deprecated_fields.yml@main
+    uses: sketch-hq/gql-lint/.github/workflows/gql_new_deprecated_fields.yml@main
     with:
       base_branch: main
       schema_urls: "https://one.com/api/graphql,https://two.com/clients/graphql"
