@@ -20,12 +20,7 @@ else
   PLATFORM="linux"
 fi
 
-# Stay backwards compatible with older versions that had the version in the file name.
-if [[ "v1v2v3v4" == *"$VERSION"* ]]; then
-  TARNAME=gql-lint-$VERSION-$PLATFORM-$ARCH.tar.gz
-else
-  TARNAME=gql-lint-$PLATFORM-$ARCH.tar.gz
-fi
+TARNAME=gql-lint-$PLATFORM-$ARCH.tar.gz
 
 if [[ "$VERSION" == "latest" ]]; then
   URL="https://github.com/sketch-hq/gql-lint/releases/latest/download/$TARNAME"
@@ -40,13 +35,13 @@ echo ---
 curl -SLJO $URL
 
 echo ---
-echo Installing
+echo Installing (in /usr/local/bin)
 echo ---
 
 tar xvzf $TARNAME
 rm $TARNAME
 
-echo "sudo for moving gql-lint to /usr/local/bin"
+echo "sudo required for moving gql-lint to /usr/local/bin"
 sudo mv gql-lint /usr/local/bin
 
 echo Done!
