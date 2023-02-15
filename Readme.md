@@ -3,11 +3,11 @@
 ## Install
 
 ```
-curl https://raw.githubusercontent.com/sketch-hq/gql-lint/lab/releases/install.sh | /bin/bash -s -- <version>
+curl https://raw.githubusercontent.com/sketch-hq/gql-lint/main/install.sh | /bin/bash -s -- <version>
 ```
 
 ```
-curl https://raw.githubusercontent.com/sketch-hq/gql-lint/lab/releases/install.sh | /bin/bash -s -- v0
+curl https://raw.githubusercontent.com/sketch-hq/gql-lint/main/install.sh | /bin/bash -s -- v0
 ```
 
 You can also use `latest` as the version to get whatever is the latest available version.
