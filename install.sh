@@ -35,7 +35,7 @@ echo ---
 curl -SLJO $URL
 
 echo ---
-echo Installing (in /usr/local/bin)
+echo "Installing (in /usr/local/bin)"
 echo ---
 
 tar xvzf $TARNAME
