@@ -53,11 +53,11 @@ Schema: testdata/schemas/with_deprecations.gql
 
 # supports repeated --schema
 $ gql-lint unused --schema testdata/schemas/with_deprecations.gql --schema testdata/schemas/album.gql testdata/queries/unused/without_title/*.gql
-Schema: testdata/schemas/with_deprecations.gql
-  Book.title (line 1) is unused and can be removed 
-
 Schema: testdata/schemas/album.gql
-  Album.title (line 1) is unused and can be removed
+  Album.title (line 1) is unused and can be removed 
+
+Schema: testdata/schemas/with_deprecations.gql
+  Book.title (line 1) is unused and can be removed
 
 # outputs deprecations as json
 $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql
@@ -80,11 +80,11 @@ $ gql-lint unused --output json --schema testdata/schemas/with_deprecations.gql 
 
 # outputs for slack
 $ gql-lint unused --output markdown --schema testdata/schemas/with_deprecations.gql --schema testdata/schemas/album.gql testdata/queries/unused/without_title/*.gql
-Schema: testdata/schemas/with_deprecations.gql
-- Book.title (line `1`)
-
 Schema: testdata/schemas/album.gql
 - Album.title (line `1`)
+
+Schema: testdata/schemas/with_deprecations.gql
+- Book.title (line `1`)
 
 # outputs debug info if --verbose is used
 $ gql-lint --verbose unused --schema testdata/schemas/with_deprecations.gql testdata/queries/unused/without_title/*.gql

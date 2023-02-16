@@ -30,9 +30,16 @@ func (d Data) SortByField() {
 
 type DataWalkFunc func(schema string, field Field, fieldIdx int)
 
-// Walk calls a walker function for each schema and field
+// Walk calls a walker function for each schema and field. Schemas are walked in alphabetical order.
 func (d *Data) Walk(walker DataWalkFunc) {
-	for schema, fields := range *d {
+	schemas := make([]string, 0, len(*d))
+	for k := range *d {
+		schemas = append(schemas, k)
+	}
+	sort.Strings(schemas)
+
+	for _, schema := range schemas {
+		fields := (*d)[schema]
 		for fieldIdx, f := range fields {
 			walker(schema, f, fieldIdx)
 		}
