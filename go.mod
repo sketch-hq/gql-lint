@@ -2,15 +2,12 @@ module github.com/sketch-hq/gql-lint
 
 go 1.19
 
-// while we wait for https://github.com/wundergraph/graphql-go-tools/pull/488 to be merged and released
-replace github.com/wundergraph/graphql-go-tools => github.com/sketch-hq/graphql-go-tools v0.0.0-20230119134629-3dd6fc431bee
-
 require (
 	github.com/google/go-cmdtest v0.4.0
 	github.com/matryer/is v1.4.0
 	github.com/spf13/cobra v1.6.1
 	github.com/vektah/gqlparser/v2 v2.5.1
-	github.com/wundergraph/graphql-go-tools v1.60.6
+	github.com/wundergraph/graphql-go-tools v1.61.2
 )
 
 require (
