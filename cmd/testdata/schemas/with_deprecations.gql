@@ -1,6 +1,12 @@
 type Book {
   id: Int!
-  title: String! @deprecated(reason: "untitled books are better")
+  title: String!
+    @deprecated(
+      reason: """
+      untitled books are better.
+        No "doubt"
+      """
+    )
   author: Author!
 }
 

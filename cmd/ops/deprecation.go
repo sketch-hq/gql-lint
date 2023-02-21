@@ -3,6 +3,7 @@ package ops
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
@@ -96,7 +97,8 @@ func deprecationStdOut(out output.Data) {
 		}
 		fmt.Printf("  %s is deprecated\n", f.Field)
 		fmt.Printf("    File:   %s:%d\n", f.File, f.Line)
-		fmt.Printf("    Reason: %s\n", f.DeprecationReason)
+		reason := strings.ReplaceAll(f.DeprecationReason, "\n", " ")
+		fmt.Printf("    Reason: %s\n", reason)
 		fmt.Println()
 	})
 }
@@ -115,12 +117,18 @@ func deprecationXcodeOut(out output.Data) {
 	out.Walk(func(_ string, f output.Field, _ int) {
 		fmt.Printf("%s:%d: warning: ", f.File, f.Line)
 		fmt.Printf("%s is deprecated ", f.Field)
-		fmt.Printf("- Reason: %s", f.DeprecationReason)
+		reason := strings.ReplaceAll(f.DeprecationReason, "\n", " ")
+		fmt.Printf("- Reason: %s", reason)
 		fmt.Println()
 	})
 }
 
 func deprecationAnnotateOut(out output.Data) {
+	var replacer = strings.NewReplacer(
+		"\n", "\\n",
+		"\"", "\\\"",
+	)
+
 	fmt.Print("[")
 	out.Walk(func(_ string, f output.Field, idx int) {
 		if idx > 0 {
@@ -128,7 +136,8 @@ func deprecationAnnotateOut(out output.Data) {
 		}
 		fmt.Printf("{ \"file\": \"%s\", \"line\": %d, ", f.File, f.Line)
 		fmt.Printf("\"title\": \"%s is deprecated\", ", f.Field)
-		fmt.Printf("\"message\": \"%s\", ", f.DeprecationReason)
+		reason := replacer.Replace(f.DeprecationReason)
+		fmt.Printf("\"message\": \"%s\", ", reason)
 		fmt.Printf("\"annotation_level\": \"warning\" }")
 	})
 	fmt.Print("]")
