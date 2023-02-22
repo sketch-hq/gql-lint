@@ -1,11 +1,10 @@
 package ops
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"github.com/sketch-hq/gql-lint/format"
 	"github.com/sketch-hq/gql-lint/input"
-	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/unused"
 	"github.com/spf13/cobra"
 )
@@ -50,61 +49,9 @@ func unusedCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	switch flags.outputFormat {
-	case stdoutFormat:
-		unusedStdOut(out)
-
-	case markdownFormat:
-		unusedMarkdownOut(out)
-
-	case jsonFormat:
-		err = unusedJSONOut(out)
-		if err != nil {
-			return err
-		}
-
-	default:
-		return fmt.Errorf("%s is not a valid output format. Choose between json, markdown and stdout", flags.outputFormat)
+	r, err := format.UnusedFormatter.Format(flags.outputFormat, out)
+	if err == nil {
+		fmt.Print(r)
 	}
-
-	return nil
-}
-
-func unusedStdOut(out output.Data) {
-	out.Walk(func(schema string, f output.Field, i int) {
-		if i == 0 {
-			fmt.Println("Schema:", schema)
-		}
-		fmt.Printf("  %s (line %d) is unused and can be removed \n", f.Field, f.Line)
-		fmt.Println()
-	})
-}
-
-func unusedJSONOut(out output.Data) error {
-	bytes, err := json.Marshal(out)
-	if err != nil {
-		return fmt.Errorf("failed to encode json: %s", err)
-	}
-
-	fmt.Print(string(bytes))
-	return nil
-}
-
-func unusedMarkdownOut(out output.Data) {
-	hasUnused := false
-
-	out.Walk(func(schema string, f output.Field, fieldIdx int) {
-		if fieldIdx == 0 {
-			if hasUnused {
-				fmt.Printf("\n") // new line for each schema, except the first one.
-			}
-			hasUnused = true
-			fmt.Println("Schema:", schema)
-		}
-		fmt.Printf("- %s (line `%d`)\n", f.Field, f.Line)
-	})
-
-	if !hasUnused {
-		fmt.Println("Nothing can be removed right now")
-	}
+	return err
 }

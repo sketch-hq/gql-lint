@@ -1,6 +1,7 @@
 package ops
 
 import (
+	"github.com/sketch-hq/gql-lint/format"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,7 @@ func init() {
 	Program.PersistentFlags().StringVar(
 		&flags.outputFormat,
 		outputFormatFlagName,
-		stdoutFormat,
+		format.StdoutFormat,
 		"Output format. Choose between stdout, json, xcode.",
 	)
 	Program.PersistentFlags().BoolVarP(
