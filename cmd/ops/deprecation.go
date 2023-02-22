@@ -1,10 +1,9 @@
 package ops
 
 import (
-	"encoding/json"
 	"fmt"
-	"strings"
 
+	"github.com/sketch-hq/gql-lint/format"
 	"github.com/sketch-hq/gql-lint/input"
 	"github.com/sketch-hq/gql-lint/output"
 	"github.com/sketch-hq/gql-lint/sources"
@@ -33,7 +32,7 @@ func init() {
 func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 	queryFiles, err := input.ExpandGlobs(args, flags.include, flags.ignore)
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 
 	if flags.verbose {
@@ -56,7 +55,7 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 
 		queryFields, err := sources.LoadQueries(schema, queryFiles)
 		if err != nil {
-			return fmt.Errorf("Unable to parse files: %s", err)
+			return fmt.Errorf("unable to parse files: %s", err)
 		}
 
 		for _, q := range queryFields {
@@ -70,75 +69,9 @@ func deprecationsCmdRun(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	switch flags.outputFormat {
-	case stdoutFormat:
-		deprecationStdOut(out)
-
-	case jsonFormat:
-		err := deprecationJsonOut(out)
-		if err != nil {
-			return err
-		}
-	case xcodeFormat:
-		deprecationXcodeOut(out)
-	case annotateFormat:
-		deprecationAnnotateOut(out)
-	default:
-		return fmt.Errorf("%s is not a valid output format. Choose between json and stdout", flags.outputFormat)
+	r, err := format.DeprecationFormatter.Format(flags.outputFormat, out)
+	if err == nil {
+		fmt.Print(r)
 	}
-
-	return nil
-}
-
-func deprecationStdOut(out output.Data) {
-	out.Walk(func(schema string, f output.Field, i int) {
-		if i == 0 {
-			fmt.Println("Schema:", schema)
-		}
-		fmt.Printf("  %s is deprecated\n", f.Field)
-		fmt.Printf("    File:   %s:%d\n", f.File, f.Line)
-		reason := strings.ReplaceAll(f.DeprecationReason, "\n", " ")
-		fmt.Printf("    Reason: %s\n", reason)
-		fmt.Println()
-	})
-}
-
-func deprecationJsonOut(out output.Data) error {
-	bytes, err := json.Marshal(out)
-	if err != nil {
-		return fmt.Errorf("Failed to encode json: %s\n", err)
-	}
-
-	fmt.Print(string(bytes))
-	return nil
-}
-
-func deprecationXcodeOut(out output.Data) {
-	out.Walk(func(_ string, f output.Field, _ int) {
-		fmt.Printf("%s:%d: warning: ", f.File, f.Line)
-		fmt.Printf("%s is deprecated ", f.Field)
-		reason := strings.ReplaceAll(f.DeprecationReason, "\n", " ")
-		fmt.Printf("- Reason: %s", reason)
-		fmt.Println()
-	})
-}
-
-func deprecationAnnotateOut(out output.Data) {
-	var replacer = strings.NewReplacer(
-		"\n", "\\n",
-		"\"", "\\\"",
-	)
-
-	fmt.Print("[")
-	out.Walk(func(_ string, f output.Field, idx int) {
-		if idx > 0 {
-			fmt.Print(",\n")
-		}
-		fmt.Printf("{ \"file\": \"%s\", \"line\": %d, ", f.File, f.Line)
-		fmt.Printf("\"title\": \"%s is deprecated\", ", f.Field)
-		reason := replacer.Replace(f.DeprecationReason)
-		fmt.Printf("\"message\": \"%s\", ", reason)
-		fmt.Printf("\"annotation_level\": \"warning\" }")
-	})
-	fmt.Print("]")
+	return err
 }

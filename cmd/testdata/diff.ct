@@ -26,7 +26,7 @@ Global Flags:
 
 # complains if json file doesn't exists
 $ gql-lint diff doesntexists.json doesntexists.json --> FAIL
-Error: Unable to diff: open doesntexists.json: no such file or directory
+Error: unable to diff: open doesntexists.json: no such file or directory
 Usage:
   gql-lint diff [flags] fileA fileB
 
