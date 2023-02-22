@@ -7,7 +7,13 @@ import (
 	"github.com/sketch-hq/gql-lint/output"
 )
 
-var input output.Data = output.Data{
+type testDefinition struct {
+	name     string
+	format   string
+	expected string
+}
+
+var data = output.Data{
 	"http://example.com/schema": []output.Field{
 		{
 			Field:             "Article.view",
@@ -33,14 +39,26 @@ See "https://example.com/migration" for more information.`,
 	},
 }
 
+func runTests(t *testing.T, formatter format.Formatter, tests []testDefinition) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, err := formatter.Format(tt.format, data)
+			if err != nil {
+				t.Errorf("error = %v", err)
+				return
+			}
+			if r != tt.expected {
+				t.Errorf("got\n%v\nwant\n%v", r, tt.expected)
+				return
+			}
+		})
+	}
+}
+
 // This test the json and xcode formats for other formatters too
 func TestDeprecationFormatter(t *testing.T) {
 
-	tests := []struct {
-		name     string
-		format   string
-		expected string
-	}{
+	tests := []testDefinition{
 		{
 			name:     "deprecation json output",
 			format:   format.JsonFormat,
@@ -81,28 +99,12 @@ Schema: http://other.example.com/schema
 `,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r, err := format.DeprecationFormatter.Format(tt.format, input)
-			if err != nil {
-				t.Errorf("error = %v", err)
-				return
-			}
-			if r != tt.expected {
-				t.Errorf("got\n%v\nwant\n%v", r, tt.expected)
-				return
-			}
-		})
-	}
+	runTests(t, format.DeprecationFormatter, tests)
 }
 
 func TestDiffFormatter(t *testing.T) {
 
-	tests := []struct {
-		name     string
-		format   string
-		expected string
-	}{
+	tests := []testDefinition{
 		{
 			name:   "diff stdout output",
 			format: format.StdoutFormat,
@@ -117,28 +119,12 @@ Book.title (Replace with to Book.headline)
 `,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r, err := format.DiffFormatter.Format(tt.format, input)
-			if err != nil {
-				t.Errorf("error = %v", err)
-				return
-			}
-			if r != tt.expected {
-				t.Errorf("got\n%v\nwant\n%v", r, tt.expected)
-				return
-			}
-		})
-	}
+	runTests(t, format.DiffFormatter, tests)
 }
 
 func TestUnusedFormatter(t *testing.T) {
 
-	tests := []struct {
-		name     string
-		format   string
-		expected string
-	}{
+	tests := []testDefinition{
 		{
 			name:   "unused stdout output",
 			format: format.StdoutFormat,
@@ -162,17 +148,5 @@ Schema: http://other.example.com/schema
 `,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r, err := format.UnusedFormatter.Format(tt.format, input)
-			if err != nil {
-				t.Errorf("error = %v", err)
-				return
-			}
-			if r != tt.expected {
-				t.Errorf("got\n%v\nwant\n%v", r, tt.expected)
-				return
-			}
-		})
-	}
+	runTests(t, format.UnusedFormatter, tests)
 }
