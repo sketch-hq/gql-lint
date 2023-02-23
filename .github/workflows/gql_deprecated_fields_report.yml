@@ -1,0 +1,69 @@
+# This workflow will build a report with the used deprecated GQL fields
+# Parent workflow must pass the secrets: inherit option
+# See example: on-pr-example.yml
+name: Deprecated fields report
+
+on:
+  workflow_call:
+    inputs:
+      schema_urls:
+        description: "Schema URLs to lint, comma separated. E.g: https://one.com/api/graphql,https://two.com/clients/graphql"
+        required: true
+        type: string
+        default: ""
+      query_files:
+        description: "Paths of query files to lint. E.g: queries/**/*.graphql api/**/*.gql"
+        required: true
+        type: string
+        default: ""
+      ignore_files:
+        description: "Paths of files to ignore, comma separated. E.g: .graphql/**/local.*.gql,other/path/**/*.graphql"
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  reportUsedDeprecatedFields:
+    name: Report used deprecated fields
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install gql-lint
+      - name: Install gql-lint
+        run: curl https://raw.githubusercontent.com/sketch-hq/gql-lint/main/install.sh | /bin/bash -s -- latest
+        shell: bash
+
+      # Install jo
+      - name: Install jo
+        run: sudo apt-get install jo
+        shell: bash
+
+      - name: Find all deprecated fields
+        shell: bash
+        id: report
+        run: |
+          gql-lint deprecation \
+          --schema "${{ inputs.schema_urls }}" \
+          --ignore "${{ inputs.ignore_files }}" \
+          "${{ inputs.query_files }}" \
+          > results.txt
+
+      - name: Serialize results
+        shell: bash
+        run: |
+          jo \
+          report="$(cat results.txt)" \
+          > results.json
+
+      - name: Post to Slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload-file-path: "./results.json"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.DEPRECATED_FIELDS_REPORT_URL }}
