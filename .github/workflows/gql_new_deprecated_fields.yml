@@ -58,27 +58,14 @@ jobs:
           echo files=$OUTPUT >> $GITHUB_OUTPUT
           set +f
 
+      # For now, we always run the deprecation check on the PR branch, even if no qgl were changed, to have the full list of deprecated fields in the logs
       - name: Find deprecated queries used in the PR branch
         run: |
           gql-lint deprecation --output json --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/pr.json
           cat /tmp/pr.json | jq .
 
-      # Checkout branch we're planning to merge into
-      - uses: actions/checkout@v3
-        with:
-          ref: "${{ inputs.base_branch }}"
-
-      - name: Find deprecated queries used in the base branch
-        run: gql-lint deprecation --output json --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/base.json
-
-      - name: Diff to find any new deprecated fields introduced by PR branch
-        id: diff-fields
-        run: |
-          echo 'DIFF<<EOF' >> $GITHUB_OUTPUT
-          gql-lint diff /tmp/base.json /tmp/pr.json >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
-
-      #Annotate the PR with findings just for modified files
+      # Annotate the PR with findings just for modified files
+      # From here below, steps only run if there are modified files
       - name: Get changed files
         id: changed-files
         uses: Ana06/get-changed-files@v2.2.0
@@ -93,6 +80,24 @@ jobs:
         run: |
           gql-lint deprecation --output annotate --include="${{ steps.changed-files.outputs.added_modified }}"  --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/annotations.json
           cat /tmp/annotations.json | jq .
+
+      # Checkout branch we're planning to merge into
+      - uses: actions/checkout@v3
+        if: steps.changed-files.outputs.added_modified != ''
+        with:
+          ref: "${{ inputs.base_branch }}"
+
+      - name: Find deprecated queries used in the base branch
+        if: steps.changed-files.outputs.added_modified != ''
+        run: gql-lint deprecation --output json --schema "${{ inputs.schema_urls }}" --ignore "${{ inputs.ignore_files }}" ${{ steps.gql-lint-command-segment.outputs.files }} > /tmp/base.json
+
+      - name: Diff to find any new deprecated fields introduced by PR branch
+        if: steps.changed-files.outputs.added_modified != ''
+        id: diff-fields
+        run: |
+          echo 'DIFF<<EOF' >> $GITHUB_OUTPUT
+          gql-lint diff /tmp/base.json /tmp/pr.json >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
       - name: Annotate files
         if: steps.changed-files.outputs.added_modified != ''
