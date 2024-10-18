@@ -27,10 +27,10 @@ jobs:
           asset_name: "gql-lint-${{ matrix.goos }}-${{ matrix.goarch }}"
           ldflags: "-s -w -X main.version=${{ github.ref_name }}"
           binary_name: "gql-lint"
-          
+
   lipo:
     name: Universal Mac binary
-    runs-on: macos-12
+    runs-on: macos-15
     needs: releases-matrix
     env:
       ARM_FILE: "gql-lint-darwin-arm64.tar.gz"
@@ -92,4 +92,3 @@ jobs:
           asset_path: "./${{ env.UNIVERSAL_FILE }}.md5"
           asset_name: "${{ env.UNIVERSAL_FILE }}.md5"
           asset_content_type: application/text
-          
