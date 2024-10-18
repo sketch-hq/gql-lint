@@ -6,7 +6,7 @@ require (
 	github.com/google/go-cmdtest v0.4.0
 	github.com/matryer/is v1.4.0
 	github.com/spf13/cobra v1.6.1
-	github.com/vektah/gqlparser/v2 v2.5.1
+	github.com/vektah/gqlparser/v2 v2.5.15
 	github.com/wundergraph/graphql-go-tools v1.61.2
 )
 
