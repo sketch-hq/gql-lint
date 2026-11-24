@@ -89,7 +89,9 @@ jobs:
 
       - name: Annotate files
         if: steps.changed-files.outputs.added_modified != ''
-        uses: yuzutech/annotations-action@v0.4.0
+        # Annotations are informative; failing to post them mustn't fail the lint
+        continue-on-error: true
+        uses: yuzutech/annotations-action@v0.6.0
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           title: "GraphQL Lint Annotations"
